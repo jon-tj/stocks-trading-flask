@@ -1,0 +1,8 @@
+:root{
+    --bg: #30323a;
+}
+
+body{
+    margin:0;
+    background-color: var(--bg);
+}
