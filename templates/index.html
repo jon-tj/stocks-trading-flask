@@ -4,11 +4,27 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/index.css') }}">
-    <title>Document</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200&family=Rubik&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../static/styles/main.css"> <!--{{ url_for('static', filename='styles/main.css') }}-->
+    <link rel="stylesheet" href="../static/styles/index.css">
+    <title>Stock Explorer</title>
 </head>
 <body>
+    <section id="navbar">
+        <section id="search-container">
+            <input spellcheck="false" type="text" id="search" onchange="search.onchange(this.value)" onkeyup="search.onkeyup(this.value)">
+            <ul id="search-results"><!-- ... --></ul>
+        </section>
+    </section>
     <canvas> Browser does not support canvas :/ </canvas>
 </body>
+<script src="../static/js/renderables.js"></script>
+<script src="../static/js/die.js"></script>
+<script src="../static/js/viewport.js"></script>
+<script src="../static/js/render_graph.js"></script>
+<script src="../static/js/search.js"></script>
 </html>

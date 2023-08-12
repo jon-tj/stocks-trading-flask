@@ -37,7 +37,7 @@ def load_json(filename):
     with open('data/'+filename+'.json') as f:
         data = json.load(f)
     return data
-def tickers():
+def get_tickers():
     return load_json('tickers')
 
 if __name__=="__main__":

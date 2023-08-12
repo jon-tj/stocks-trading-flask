@@ -21,5 +21,9 @@ def api_quotes(ticker):
     quotes=data_handler.download_quotes(ticker)
     return pd.DataFrame.to_json(quotes)
 
+@app.route("/api/tickers", methods=['GET'])
+def api_tickers():
+    return json.dumps(data_handler.get_tickers())
+
 if __name__ == "__main__":
     app.run(debug=True)
