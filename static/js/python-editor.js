@@ -6,6 +6,7 @@ var activeScriptKey=null;
 pycode.value=`"""
  @legend: SMA($ticker)
  @name: Simple Moving Average|SMA
+ @description: Mean of rolling window
 """
 def main(df):
     return df['Close'].rolling(window=5).mean()`;

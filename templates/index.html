@@ -13,7 +13,9 @@
     <link rel="stylesheet" href="../static/styles/index.css">
     <link rel="stylesheet" href="../static/styles/python-editor.css">
     <link rel="stylesheet" href="../static/styles/prompt-box.css">
-    <title>Stock Explorer</title>
+    <!--favicon:-->
+    <link rel="shortcut icon" href="../static/icons/tradeflask_dark.png" >
+    <title>Flask Trader</title>
 </head>
 <body>
     <section id="navbar">
@@ -45,7 +47,7 @@
                 <button class="transparent" onclick="hidePrompt()">Cancel</button>
             </section>
         </section>
-        <section name="welcome"> <!--Launched at start-->
+        <section name="welcome" id="prompt-welcome"> <!--Launched at start-->
             <img class="logo" src="../static/icons/tradeflask.png" alt="logo" title="Happy trading ;)">
             <h1>Flask Trader</h1><em class="bordered">&nbsp;Version 1.0</em>
             <p>Search tickers, code and more:</p>
@@ -56,7 +58,7 @@
             </section>
         </section>
         <section name="help">
-            <ul>
+            <ul id="help-list">
                 <li>SMA(ticker,period)</li>
             </ul>
         </section>
@@ -64,6 +66,7 @@
     <section id="overlay-black"></section>
     <canvas> Browser does not support canvas :/ </canvas>
 </body>
+<script src="../static/js/prompt-box.js"></script>
 <script src="../static/js/python-editor.js"></script>
 <script src="../static/js/navbar.js"></script>
 <script src="../static/js/renderables.js"></script>
@@ -72,5 +75,4 @@
 <script src="../static/js/render-graph.js"></script>
 <script src="../static/js/search.js"></script>
 <script src="../static/js/events.js"></script>
-<script src="../static/js/prompt-box.js"></script>
 </html>

@@ -6,6 +6,10 @@ function cutoffResultText(text,cutoffLength=20){
     }
     return text;
 }
+const commands={
+    'help':helpPrompt,
+    'welcome':welcomePrompt,
+}
 search={
     input:document.querySelector('#search'),
     results:document.querySelector('#search-results'),
@@ -30,7 +34,26 @@ search={
         }
         search.results.innerHTML=""; // clear old results
         q=val.toLowerCase();
-        
+        if(q[0]=="/"){
+            q=q.substring(1);
+            for(var command in commands){
+                if(search.matchQuery(q,command)){
+                    var li=document.createElement('li');
+                    search.results.append(li);
+                    li.classList.add('search-result');
+                    li.innerHTML=`<p class='name'>/${command}</p>`;
+                    const func=commands[command];
+                    li.onclick=()=>{
+                        func();
+                        search.input.value="";
+                        search.results.style.display="none";
+                    }
+                    if(search.results.children.length>=4)break;
+                }
+            }
+            search.results.style.display="block";
+            return;
+        }
         for(var i in prefabsNames){
             const prefab=prefabsNames[i];
             var namesMatch=false;
@@ -106,7 +129,7 @@ function loadScript(key='sma'){
             activeScriptKey=key;
             if(pythonEditor.style.display != "block")
             togglePython(imgTogglePython)
-            hidePrompt();
+            hidePrompt(false);
         });
     }
     else
@@ -118,7 +141,7 @@ function loadScript(key='sma'){
             d=JSON.parse(d.replaceAll('NaN','null'))
             receiveGraphResponse(d);
             render();
-            hidePrompt();
+            hidePrompt(false);
             pyPrint(">"+d.legend)
         });
     }

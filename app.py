@@ -93,7 +93,15 @@ def get_script_symbol(script,symbol,placeholder):
 
 @app.route("/api/prefabs", methods=['GET'])
 def api_list_prefabs():
-    return json.dumps([{'key':p,'names':prefabs[p]['names']} for p in prefabs])
+    return json.dumps([
+        {
+            'key': p,
+            'names': prefabs[p]['names'],
+            'parameters': prefabs[p]['parameters'],
+            'description': prefabs[p]['description'] if 'description' in prefabs[p] else None
+        }
+        for p in prefabs
+    ])
 
 @app.route("/api/prefabs/<p>", methods=['GET'])
 def api_get_prefab(p):
@@ -114,6 +122,7 @@ def api_post_prefab():
     print("receieved code: ",code)
     legend=get_script_symbol(code,'legend','unknown')
     if '(' in legend: legend=legend[:legend.find('(')]
+    description=get_script_symbol(code,'description',None)
     name=get_script_symbol(code,'name',legend)
     if name=='unknown':
         return make_response(json.dumps({'error':'Could not determine name'}), 400)
@@ -122,6 +131,23 @@ def api_post_prefab():
         'names':names,
         'code':code
     }
+    # find the parameters in def main, other than 'df':
+    if(code.find('def main(')!=-1):
+        parameters={}
+        parametersText=code[code.find('def main(')+9:].strip()
+        parametersText=parametersText[:parametersText.find(')')].replace(' ','').split(',')
+        if len(parametersText)>0:
+            del parametersText[0]
+        for i in range(len(parametersText)):
+            if '=' in parametersText[i]:
+                s=parametersText[i].split('=')
+                parameters[s[0]]=s[1]
+            else:
+                parameters[parametersText[i]]=0
+
+        prefabs[legend]['parameters']=parameters
+    if description:
+        prefabs[legend]['description']=description
     with open('./py-prefabs.json','w') as f:
         json.dump(prefabs,f)
     return make_response(api_list_prefabs(), 200)

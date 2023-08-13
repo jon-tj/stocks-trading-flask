@@ -2,6 +2,7 @@ const promptBox=document.querySelector('#prompt-box');
 const promptDeleteItem=document.querySelector('#prompt-delete-item');
 const overlayBlack=document.querySelector('#overlay-black');
 var delObj=null;
+var currentPromptAction=null;
 
 function confirmDelete(){
     if(delObj){
@@ -36,7 +37,8 @@ function confirmDelete(){
         console.warn("Object could not be deleted: "+delObj+". It is not a prefab.")
     }
 }
-function hidePrompt(){
+function hidePrompt(forceCloseHelp=true){
+    if(currentPromptAction=='help' &&!forceCloseHelp) return;
     promptBox.style.display='none';
     if(hidePromptAction){
         hidePromptAction();
@@ -44,6 +46,11 @@ function hidePrompt(){
     }
 }
 function prompt(value,action='welcome'){
+    currentPromptAction=action;
+    if(hidePromptAction){
+        hidePromptAction();
+        hidePromptAction=null;
+    }
     for(const c of promptBox.children){
         if(c.getAttribute('name')==action)
             c.classList.remove('hidden');
@@ -57,7 +64,15 @@ function prompt(value,action='welcome'){
 }
 var hidePromptAction=null;
 function welcomePrompt(){
-    prompt('welcome');
+    prompt();
+    console.log("aadw");
+    if(search.input){
+        console.log("a");
+        var sc=search.input.parentElement;
+        sc.parentElement.removeChild(sc);
+        var nb=document.querySelector("#prompt-welcome");
+        nb.append(sc);
+    }
     hidePromptAction=()=>{
         var sc=search.input.parentElement;
         sc.parentElement.removeChild(sc);
@@ -65,5 +80,31 @@ function welcomePrompt(){
         nb.insertBefore(sc,nb.firstChild);
     }
 }
-
+function helpPrompt(){
+    var helpList=document.querySelector('#help-list');
+    helpList.innerHTML='';
+    
+    for(const h of Object.keys(commands)){
+        var li=document.createElement('li');
+        li.innerText="/"+h;
+        li.addEventListener('click',()=>{
+            commands[h]();
+        })
+        helpList.append(li);
+    }
+    for(const h of prefabsNames){
+        var li=document.createElement('li');
+        li.title='Click to load '+h.names[0]+' script';
+        var parameters=Object.keys(h.parameters).join(', ');
+        li.innerHTML=`<span>${h.names[0]}</span>,&nbsp;<strong>${h.key}</strong>(${parameters})`;
+        console.log(h.description)
+        if(h.description)
+            li.innerHTML+=`<br><em class="indented">${h.description}</em>`;
+        li.addEventListener('click',()=>{
+            loadScript(h.key);
+        })
+        helpList.append(li);
+    }
+    prompt(null,"help")
+}
 welcomePrompt();

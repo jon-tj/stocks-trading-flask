@@ -55,3 +55,25 @@ section.hidden{
     padding: 5em;
     font-size: 120;
 }
+#help-list{
+    position: absolute;
+    top:0; right:0; bottom:0; left:0;
+    list-style: none;
+    overflow-y: scroll;
+    padding: 0;
+}
+#help-list>li{
+    padding: 1em;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    cursor: pointer;
+}
+#help-list>li:hover{
+    background-color: var(--bg);
+}
+#help-list>li:first-child{
+    cursor: default; /*No reason to click on help from help list haha*/
+}
+.indented{
+    padding-left: 1em;
+}
