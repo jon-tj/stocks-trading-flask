@@ -13,11 +13,13 @@ const mouse={
 const keys={"Shift":false,"Control":false}
 const renderables=[];
 var notchIntervalGridX=1, notchIntervalGridY=1;
+var displayCursorLines=false;
 
 //#region theme
 const themeProperties=[
     "bg",
     "axes", "grid",
+    "navbar-primary"
 ];
 const graphColors=[
     "#3498db", // Bright Blue
@@ -48,6 +50,23 @@ function render(){
     ctx.fillRect(0,0,canvas.width,canvas.height);
     // grid
     drawGrid();
+
+    if(displayCursorLines){
+        ctx.strokeStyle=theme['axes'];
+        ctx.fillStyle=theme['axes'];
+        ctx.beginPath();
+        ctx.moveTo(mouse.position.x,0);
+        ctx.lineTo(mouse.position.x,canvas.height);
+        ctx.moveTo(0,mouse.position.y);
+        ctx.lineTo(canvas.width,mouse.position.y);
+        ctx.stroke();
+        places=Math.max(0,3-Math.log10(view.width));
+        var y_cursor=view.revertY(mouse.position.y);
+        ctx.fillText(y_cursor.toFixed(places),7,mouse.position.y-7);
+        var x_cursor=view.revertX(mouse.position.x);
+        ctx.fillText(x_cursor.toFixed(places),mouse.position.x+7,canvas.height-8);
+
+    }
 
     // renderables
     var legendY=40;

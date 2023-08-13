@@ -18,6 +18,11 @@ function toggleVerticalFit(sender){
     view.pan(0,0);
     render();
 }
+function toggleCursorLines(sender){
+    toggleSenderActive(sender);
+    displayCursorLines=!displayCursorLines;
+    render();
+}
 function setMaxTimeScale(sender){
     for(r of renderables){
         if(!r instanceof CandleChart)continue
