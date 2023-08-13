@@ -17,12 +17,9 @@
 </head>
 <body>
     <section id="navbar">
-        <section id="search-container" class="inline">
-            <input autocomplete="off" spellcheck="false" type="text" id="search" onchange="search.onchange(this.value)" onkeyup="search.onkeyup(this.value)">
-            <ul id="search-results"><!-- ... --></ul>
-        </section>
+        <!--Search bar appears here when prompt is closed-->
         <section class="inline" style="margin-right: 0.3em;">
-            <img class="icon" onclick="togglePython(this)" src="../static/icons/python/python.png" title="Open python editor" alt="python">
+            <img class="icon" onclick="togglePython(this)" src="../static/icons/python/python.png" id="toggle-python" title="Open python editor" alt="python">
             <img class="icon" id="toggleVerticalFit" onclick="toggleVerticalFit(this)" src="../static/icons/graph/fitVertically.png" title="Toggle vertical fit" alt="Fit vertically">
             <img class="icon" onclick="setMaxTimeScale(this)" src="../static/icons/graph/timeMax.png" title="Set max time-scale" alt="time max">
             <img class="icon" onclick="toggleFullscreen(this)" src="../static/icons/graph/fullscreen.png" title="Toggle fullscreen" alt="fullscreen">
@@ -39,18 +36,31 @@
         <textarea spellcheck="false" id="terminal"></textarea>
     </section>
     <section id="prompt-box">
-        <section id="prompt-delete">
-            <h2>You are about to delete: <span id="prompt-delete-item">nodata</span></h2>
+        <section name="delete">
+            <h2>You are about to delete: <span id="prompt-delete-item">your mom</span></h2>
             <p>This action can not be undone.</p>
-            <section>
+            <section class="centered-buttons">
                 <button class="filled" onclick="confirmDelete()">Confirm</button>
                 <button class="transparent" onclick="hidePrompt()">Cancel</button>
             </section>
         </section>
-        <section  id="prompt-select-ticker"> <!--Launched at start-->
-
+        <section name="welcome"> <!--Launched at start-->
+            <img class="logo" src="../static/icons/tradeflask.png" alt="logo" title="Happy trading ;)">
+            <h1>Flask Trader</h1><em class="bordered">&nbsp;Version 1.0</em>
+            <p>Search tickers, code and more:</p>
+            <section id="search-container" class="welcome inline">
+                <input autocomplete="off" spellcheck="false" type="text" id="search" onchange="search.onchange(this.value)" onkeyup="search.onkeyup(this.value)"
+                placeholder="Tesla">
+                <ul id="search-results"><!-- ... --></ul>
+            </section>
+        </section>
+        <section name="help">
+            <ul>
+                <li>SMA(ticker,period)</li>
+            </ul>
         </section>
     </section>
+    <section id="overlay-black"></section>
     <canvas> Browser does not support canvas :/ </canvas>
 </body>
 <script src="../static/js/python-editor.js"></script>

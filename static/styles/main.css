@@ -103,10 +103,10 @@ span.icon{
 .icon.active{
     background-color: var(--navbar-secondary);
 }
-section.inline{
+.inline{
     display: inline;
 }
-section.bordered{
+.bordered{
     border-left: 1px solid var(--navbar-primary);
     position: relative;
     top:-0.3em;

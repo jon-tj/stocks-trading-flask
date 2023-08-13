@@ -91,5 +91,6 @@ function saveScript(){
     });
 }
 function promptDeleteScript(){
-    prompt(activeScriptKey,'delete')
+    if(activeScriptKey)
+        prompt(activeScriptKey,'delete')
 }

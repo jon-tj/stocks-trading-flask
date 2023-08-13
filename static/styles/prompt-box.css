@@ -14,7 +14,7 @@
     color:var(--navbar-primary);
     display: none;
 }
-#prompt-delete>section{
+.centered-buttons{
 margin: auto;
 width: fit-content;
 }
@@ -39,4 +39,19 @@ button:hover{
 }
 section.hidden{
     display: none;
+}
+.logo{
+    position: absolute;
+    top:1em;
+    right:1em;
+    height: 2.5em;
+}
+.welcome{
+    position: absolute;
+    left:0;
+    right:0;
+    top:auto;
+    bottom:1em;
+    padding: 5em;
+    font-size: 120;
 }

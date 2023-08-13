@@ -12,6 +12,7 @@ const mouse={
 }
 const keys={"Shift":false,"Control":false}
 const renderables=[];
+var notchIntervalGridX=1, notchIntervalGridY=1;
 
 //#region theme
 const themeProperties=[
@@ -62,7 +63,11 @@ function render(){
 }
 
 //#region draw grid :)
-
+function recalcNotchIntervalGrid(){
+    notchIntervalGridX=getNotchInterval(view.x-view.width,view.x+view.width,canvas.width*0.5)
+    notchIntervalGridY=getNotchInterval(view.y-view.height,view.y+view.height,canvas.height)
+}
+recalcNotchIntervalGrid();
 function clamp(x,min,max){
     if(x<min)return min
     if(x>max)return max
@@ -76,11 +81,8 @@ function drawGrid(){
     ctx.lineWidth=1
 
     // values of x,y the grid lines will pass through:
-    //! TODO: notch interval should not be calculated for each render call!!!
-    var notchInterval=getNotchInterval(view.x-view.width,view.x+view.width,canvas.width*0.5)
-    var notchesX = getAxisNotches(view.x-view.width,view.x+view.width,notchInterval)
-    notchInterval=getNotchInterval(view.y-view.height,view.y+view.height,canvas.height)
-    var notchesY = getAxisNotches(view.y-view.height,view.y+view.height,notchInterval)
+    var notchesX = getAxisNotches(view.x-view.width,view.x+view.width,notchIntervalGridX)
+    var notchesY = getAxisNotches(view.y-view.height,view.y+view.height,notchIntervalGridY)
 
     // notches
     places=Math.max(0,2-Math.log10(view.width));

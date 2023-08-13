@@ -1,3 +1,4 @@
+const imgTogglePython=document.querySelector('#toggle-python');
 var activeTicker=null;
 function cutoffResultText(text,cutoffLength=20){
     if(text.length>cutoffLength){
@@ -86,12 +87,13 @@ function loadTicker(name='EQNR',ticker='EQNR.OL'){
         }
         view.fitVerticalTarget=d['Close'];
         render();
+        hidePrompt();
         return r;
     });
 }
 
 function loadScript(key='sma'){
-    if(pythonEditor.style.display == "block")
+    if(pythonEditor.style.display == "block" || activeTicker===null)
     {
         // we wish to see the code
         fetch('/api/prefabs/'+key)
@@ -99,6 +101,8 @@ function loadScript(key='sma'){
         .then(d=>{
             pycode.value=d;
             activeScriptKey=key;
+            if(pythonEditor.style.display != "block")
+            togglePython(imgTogglePython)
         });
     }
     else
@@ -110,6 +114,7 @@ function loadScript(key='sma'){
             d=JSON.parse(d.replaceAll('NaN','null'))
             receiveGraphResponse(d);
             render();
+            hidePrompt();
             pyPrint(">"+d.legend)
         });
     }

@@ -24,6 +24,7 @@ document.addEventListener("keyup",(e)=>{
     if(Object.keys(keys).includes(e.key)) keys[e.key]=false
 });
 canvas.addEventListener('wheel',(e)=>{ // Zooming
+    recalcNotchIntervalGrid();
     view.zoom(e.deltaY)
     render()
     return false; // prevents scrolling on the website
@@ -40,6 +41,7 @@ canvas.addEventListener('mousedown',(e)=>{
     mouse.click.x=e.offsetX;
     mouse.click.y=e.offsetY;
     search.results.style.display="none";
+    hidePrompt();
 })
 canvas.addEventListener('mousemove',(e)=>{
     mouse.position.x=e.offsetX;
