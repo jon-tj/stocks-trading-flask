@@ -89,11 +89,6 @@ function loadTicker(name='EQNR',ticker='EQNR.OL'){
         view.fitData(d['Close'])
         var r=new CandleChart(name,d,graphColors[renderables.length%graphColors.length]);
         renderables.push(r);
-        if(!view.fitVertical){
-            toggleSenderActive(btnToggleVerticalFit);
-            view.fitVertical=true;
-        }
-        view.fitVerticalTarget=d['Close'];
         render();
         hidePrompt();
         return r;
