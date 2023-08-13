@@ -10,6 +10,14 @@ search={
     input:document.querySelector('#search'),
     results:document.querySelector('#search-results'),
     onchange:(val)=>{
+        var placeholders=[
+            "/help",
+            "Tesla",
+            "AAPL",
+            "Simple Moving Average",
+            "EMA"
+        ]
+        search.input.placeholder=placeholders[Math.floor(Math.random()*placeholders.length)];
         //search.input.value="";
         //search.results.style.display="none";
         // click top result in results
@@ -103,6 +111,7 @@ function loadScript(key='sma'){
             activeScriptKey=key;
             if(pythonEditor.style.display != "block")
             togglePython(imgTogglePython)
+            hidePrompt();
         });
     }
     else
