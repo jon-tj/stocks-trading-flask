@@ -11,20 +11,55 @@
 
     <link rel="stylesheet" href="../static/styles/main.css"> <!--{{ url_for('static', filename='styles/main.css') }}-->
     <link rel="stylesheet" href="../static/styles/index.css">
+    <link rel="stylesheet" href="../static/styles/python-editor.css">
+    <link rel="stylesheet" href="../static/styles/prompt-box.css">
     <title>Stock Explorer</title>
 </head>
 <body>
     <section id="navbar">
-        <section id="search-container">
-            <input spellcheck="false" type="text" id="search" onchange="search.onchange(this.value)" onkeyup="search.onkeyup(this.value)">
+        <section id="search-container" class="inline">
+            <input autocomplete="off" spellcheck="false" type="text" id="search" onchange="search.onchange(this.value)" onkeyup="search.onkeyup(this.value)">
             <ul id="search-results"><!-- ... --></ul>
+        </section>
+        <section class="inline" style="margin-right: 0.3em;">
+            <img class="icon" onclick="togglePython(this)" src="../static/icons/python/python.png" title="Open python editor" alt="python">
+            <img class="icon" id="toggleVerticalFit" onclick="toggleVerticalFit(this)" src="../static/icons/graph/fitVertically.png" title="Toggle vertical fit" alt="Fit vertically">
+            <img class="icon" onclick="setMaxTimeScale(this)" src="../static/icons/graph/timeMax.png" title="Set max time-scale" alt="time max">
+            <img class="icon" onclick="toggleFullscreen(this)" src="../static/icons/graph/fullscreen.png" title="Toggle fullscreen" alt="fullscreen">
+        </section>
+        <section class="inline bordered">
+            <span class="icon">Test</span>
+        </section>
+    </section>
+    <section id="python-editor">
+        <img class="icon" onclick="runPython()" src="../static/icons/python/play.png" title="Run script" alt="run script">
+        <img class="icon" onclick="saveScript()" src="../static/icons/python/upload.png" title="Upload" alt="upload">
+        <img class="icon" onclick="promptDeleteScript()" src="../static/icons/python/delete.png" title="Delete script" alt="delete">
+        <textarea spellcheck="false" id="pycode"></textarea>
+        <textarea spellcheck="false" id="terminal"></textarea>
+    </section>
+    <section id="prompt-box">
+        <section id="prompt-delete">
+            <h2>You are about to delete: <span id="prompt-delete-item">nodata</span></h2>
+            <p>This action can not be undone.</p>
+            <section>
+                <button class="filled" onclick="confirmDelete()">Confirm</button>
+                <button class="transparent" onclick="hidePrompt()">Cancel</button>
+            </section>
+        </section>
+        <section  id="prompt-select-ticker"> <!--Launched at start-->
+
         </section>
     </section>
     <canvas> Browser does not support canvas :/ </canvas>
 </body>
+<script src="../static/js/python-editor.js"></script>
+<script src="../static/js/navbar.js"></script>
 <script src="../static/js/renderables.js"></script>
 <script src="../static/js/die.js"></script>
 <script src="../static/js/viewport.js"></script>
 <script src="../static/js/render_graph.js"></script>
 <script src="../static/js/search.js"></script>
+<script src="../static/js/events.js"></script>
+<script src="../static/js/prompt-box.js"></script>
 </html>

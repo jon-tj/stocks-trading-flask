@@ -1,3 +1,4 @@
+var activeTicker=null;
 function cutoffResultText(text,cutoffLength=20){
     if(text.length>cutoffLength){
         return text.substring(0,cutoffLength)+"...";
@@ -20,7 +21,33 @@ search={
         }
         search.results.innerHTML=""; // clear old results
         q=val.toLowerCase();
+        
+        for(var i in prefabsNames){
+            const prefab=prefabsNames[i];
+            var namesMatch=false;
+            for(const n in prefab.names){
+                if(search.matchQuery(q,prefab.names[n])){
+                    namesMatch=true;
+                    break;
+                }
+            }
+            if(!namesMatch && !search.matchQuery(q,prefab.key)) continue;
+            var li=document.createElement('li');
+            search.results.append(li);
+            li.classList.add('search-result');
+            li.innerHTML=
+                `<img class='market' src='/static/icons/python/python.png'> 
+                <p class='name'>${cutoffResultText(prefab.names[0],24)}</p>`;
+            li.onclick=()=>{
+                loadScript(prefab.key);
+                search.input.value="";
+                search.results.style.display="none";
+            }
+            if(search.results.children.length>=4)break;
+        }
+
         for(var t of tickers){
+            if(search.results.children.length>=4)break;
             if(!search.matchQuery(q,t.symbol) && !search.matchQuery(q,t.name)) continue;
             var li=document.createElement('li');
             search.results.append(li);
@@ -31,13 +58,12 @@ search={
             const ticker=t['symbol'];
             const market=t['market']=='.NYSE'?'':t['market'];
             li.onclick=()=>{
-                console.log(ticker+market)
                 loadTicker(ticker,ticker+market);
                 search.input.value="";
                 search.results.style.display="none";
             }
-            if(search.results.children.length>=4)break;
         }
+        
         search.results.style.display="block";
     },
     matchQuery:(q,text)=>{
@@ -46,25 +72,65 @@ search={
     }
 }
 
-function loadTicker(ticker='EQNR'){
+function loadTicker(name='EQNR',ticker='EQNR.OL'){
     fetch('/api/quotes/'+ticker)
     .then(res=>res.json())
     .then(d=>{
+        activeTicker=ticker;
         view.fitData(d['Close'])
-        var r=new CandleChart(ticker,d,graphColors[renderables.length%graphColors.length]);
+        var r=new CandleChart(name,d,graphColors[renderables.length%graphColors.length]);
         renderables.push(r);
+        if(!view.fitVertical){
+            toggleSenderActive(btnToggleVerticalFit);
+            view.fitVertical=true;
+        }
+        view.fitVerticalTarget=d['Close'];
         render();
         return r;
     });
 }
 
+function loadScript(key='sma'){
+    if(pythonEditor.style.display == "block")
+    {
+        // we wish to see the code
+        fetch('/api/prefabs/'+key)
+        .then(res=>res.json()) // silly cast since res will just be a string but lazy
+        .then(d=>{
+            pycode.value=d;
+            activeScriptKey=key;
+        });
+    }
+    else
+    {
+        // we wish to run the code
+        fetch('/api/prefabs/'+key+'?ticker='+activeTicker)
+        .then(res=>res.json()) // silly cast since res will just be a string but lazy
+        .then(d=>{
+            if(d.values.length<2){
+                var err="No data to plot :/ Have you specified a ticker?"
+                die(err);
+                return;
+            }
+            y=[]
+            for(var i=0;i<d.values.length;i++) y.push(d.values[i])
+            renderables.push(Graph.createLinear(d.legend,y,graphColors[renderables.length%graphColors.length]));
+            console.log(renderables);
+            render();
+        });
+    }
+}
 // idk why this try/catch doesn't work, any fetch errors will just seep through.
 // same thing happens when doing fetch.catch()... but alas...
 var tickers={}
+var prefabsNames={}
 try{
     fetch('/api/tickers')
     .then(res=>res.json())
     .then(d=>tickers=d)
+    fetch('/api/prefabs')
+    .then(res=>res.json())
+    .then(d=>prefabsNames=d)
 }
 catch{
     die("Internal server error. Please try again later.")

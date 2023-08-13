@@ -1,0 +1,42 @@
+#prompt-box{
+    position: absolute;
+    top:50%;
+    left:50%;
+    width: 400px;
+    height: 200px;
+    transform: translate(-50%,-50%);
+    z-index: 10;
+    background-color: var(--navbar);
+    padding: 2em;
+    border-radius: 1em;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.247);
+    border: 1px solid var(--navbar-secondary);
+    color:var(--navbar-primary);
+    display: none;
+}
+#prompt-delete>section{
+margin: auto;
+width: fit-content;
+}
+button.transparent,
+button.filled{
+    padding:0.3em;
+    min-width: 10em;
+    background-color: var(--navbar);
+    border:none;
+    outline: 1px solid var(--navbar-primary);
+    color: var(--navbar-primary);
+    border-radius: 3px;
+    cursor: pointer;
+    margin: 0.5em;
+}
+button.filled{
+    background-color: var(--navbar-primary);
+    color: var(--navbar);
+}
+button:hover{
+    outline: 2px solid var(--navbar-primary);
+}
+section.hidden{
+    display: none;
+}

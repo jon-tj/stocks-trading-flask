@@ -1,0 +1,37 @@
+#python-editor{
+    background-color: var(--editor-bg);
+    position: absolute;
+    padding-top: 0.5em;
+    padding-left: 0.5em;
+    top: 2.3em;
+    left:0;
+    bottom:0;
+    width: 23%;
+    z-index: 1;
+    display: none;
+    border-right: 1px solid var(--navbar-secondary);
+    /*border-left: 5px solid var(--navbar-primary);*/
+}
+#python-editor>textarea#pycode{
+    position: absolute;
+    top:4em; bottom:12em; left:1em; right:1em;
+    border: none;
+    outline: none;
+    border-left:1px solid var(--navbar-primary);
+    border-top: 1px solid var(--navbar-secondary);
+    color:var(--navbar-primary);
+    background-color: var(--editor-bg);
+    padding-left: 0.5em;
+    resize: none;
+}
+#python-editor>textarea#terminal{
+    position: absolute;
+    height:10em;
+    bottom:1em; left:1em; right:1em;
+    border: none;
+    outline: none;
+    color:var(--navbar-primary);
+    background-color: var(--bg);
+    padding-left: 0.5em;
+    resize: none;
+}

@@ -4,16 +4,35 @@ class Graph{
         this.x=x;
         this.y=y;
         this.color=color;
+        this.linearX=false;
     }
     render(){
         ctx.beginPath();
-        ctx.moveTo(view.transformX(this.x[0]),view.transformY(this.y[0]));
-        ctx.fillStyle=this.color;
-        for(let i=1;i<this.x.length;i++){
-            ctx.lineTo(view.transformX(this.x[i]),view.transformY(this.y[i]));
+        ctx.strokeStyle=this.color;
+        if(this.linearX){
+            var i=Math.max(0,this.y.length+Math.floor(view.left)-1);
+            const end=Math.min(this.y.length,this.y.length+Math.ceil(view.right))
+            while(i<end && this.y[i]==null) i++; //skip
+            var x=view.transformX(i-this.y.length);
+            var dx=1/view.dx;
+            ctx.moveTo(x,view.transformY(this.y[i]));
+            for(;i<end; i++){
+                x+=dx;
+                ctx.lineTo(x,view.transformY(this.y[i]));
+            }
+        }else{
+            ctx.moveTo(view.transformX(this.x[0]),view.transformY(this.y[0]));
+            for(let i=1;i<this.x.length;i++)
+                ctx.lineTo(view.transformX(this.x[i]),view.transformY(this.y[i]));
         }
         ctx.stroke();
     }
+    static createLinear(name,y,color){
+        var graph=new Graph(name,[],y,color);
+        graph.linearX=true;
+        return graph;
+    }
+
 }
 class CandleChart{
     constructor(name,data,color){
@@ -25,11 +44,10 @@ class CandleChart{
     render(){
         ctx.fillStyle=this.color;
         var i=this.n+Math.floor(view.left)-1;
-        const end=this.n+Math.floor(view.right)
+        const end=Math.min(this.n,this.n+Math.ceil(view.right))
         var x=view.transformX(i-this.n);
         var dx=1/view.dx;
         for(;i<end; i++){
-            x+=dx;
             var high=view.transformY(this.data['High'][i]);
             //if(high>canvas.height)continue; // not a big save since 99% of the candles are in view haha
             var low=view.transformY(this.data['Low'][i]);
@@ -43,6 +61,8 @@ class CandleChart{
                 ctx.fillRect(x+1,open+1,dx-2,close-open-2);
                 ctx.fillStyle=this.color;
             }
+            x+=dx;
         }
     }
+    
 }

@@ -41,49 +41,6 @@ function getTheme(){
 var theme=getTheme();
 //#endregion
 
-//# region Setup canvas event listeners
-
-document.addEventListener("keydown",(e)=>{
-    if(Object.keys(keys).includes(e.key)) keys[e.key]=true
-});
-document.addEventListener("keyup",(e)=>{
-    if(Object.keys(keys).includes(e.key)) keys[e.key]=false
-});
-canvas.addEventListener('wheel',(e)=>{ // Zooming
-    view.zoom(e.deltaY)
-    render()
-    return false; // prevents scrolling on the website
-  }, false);
-  
-window.addEventListener("resize", (e)=>{
-    canvas.width=window.innerWidth;
-    canvas.height=window.innerHeight-navbar.clientHeight;
-    render();
-});
-canvas.addEventListener("contextmenu",(e)=>e.preventDefault()) // no right click menu on canvas
-canvas.addEventListener('mousedown',(e)=>{
-    mouse.click.button=e.button;
-    mouse.click.x=e.offsetX;
-    mouse.click.y=e.offsetY;
-    search.results.style.display="none";
-})
-canvas.addEventListener('mousemove',(e)=>{
-    mouse.position.x=e.offsetX;
-    mouse.position.y=e.offsetY;
-    if(mouse.click.button==0){
-        view.pan(
-            -(e.offsetX-mouse.click.x)*view.dx,
-            (e.offsetY-mouse.click.y)*view.dy
-        );
-        mouse.click.x=e.offsetX;
-        mouse.click.y=e.offsetY;
-    }
-    render();
-})
-canvas.addEventListener("mouseup",(e)=>{
-    mouse.click.button=-1;
-})
-//#endregion
 function render(){
     // clear canvas
     ctx.fillStyle=theme['bg'];
@@ -103,6 +60,7 @@ function render(){
         }
     })
 }
+
 //#region draw grid :)
 
 function clamp(x,min,max){
@@ -112,15 +70,20 @@ function clamp(x,min,max){
   }
 
 function drawGrid(){
+    function notchText(v,places=1){
+        return v.toFixed(places)
+    }
     ctx.lineWidth=1
 
     // values of x,y the grid lines will pass through:
+    //! TODO: notch interval should not be calculated for each render call!!!
     var notchInterval=getNotchInterval(view.x-view.width,view.x+view.width,canvas.width*0.5)
     var notchesX = getAxisNotches(view.x-view.width,view.x+view.width,notchInterval)
-    notchInterval=getNotchInterval(view.y-view.height,view.y+view.height,canvas.height*1.5)
+    notchInterval=getNotchInterval(view.y-view.height,view.y+view.height,canvas.height)
     var notchesY = getAxisNotches(view.y-view.height,view.y+view.height,notchInterval)
 
     // notches
+    places=Math.max(0,2-Math.log10(view.width));
     ctx.font="10pt Arial";
     ctx.strokeStyle=theme['grid']
     ctx.fillStyle=theme['axes']
@@ -129,47 +92,49 @@ function drawGrid(){
         xT=view.transformX(x)
         ctx.moveTo(xT,0) ; ctx.lineTo(xT,canvas.height)
         ctx.stroke()
-        ctx.fillText(x,xT-8,18)
+        ctx.fillText(notchText(x,places),xT-8,18)
     })
     
+    places=Math.max(0,2-Math.log10(view.height));
     notchesY.forEach((y)=>{
         if(y<0)return;
         ctx.beginPath()
         yT=view.transformY(y)
         ctx.moveTo(0,yT) ; ctx.lineTo(canvas.width,yT)
         ctx.stroke()
-        var stringWidth=ctx.measureText(y).width
-        ctx.fillText(y,canvas.width-10-stringWidth,yT+5)
+        var yText=notchText(y,places)
+        var stringWidth=ctx.measureText(yText).width
+        ctx.fillText(yText,canvas.width-10-stringWidth,yT+5)
     })
 }
 
-function getNotchInterval(from,to,size){
+function getNotchInterval(from,to,preferredAmount){
   var range=Math.abs(to-from)
-  var optimalNotchDistance=100*range/(size/50)
-  var notchDistance=0.01
+  var optimalInterval=100*range/(preferredAmount/50)
+  var interval=0.01
   function iterFindNotch(){
-    if(optimalNotchDistance<1) return true
-    if(optimalNotchDistance<2){
-      notchDistance*=2
+    if(optimalInterval<1) return true
+    if(optimalInterval<2){
+      interval*=2
       return true
     }
-    if(optimalNotchDistance<5){
-      notchDistance*=5
+    if(optimalInterval<5){
+      interval*=5
       return true
     }
-    optimalNotchDistance/=10
-    notchDistance*=10
+    optimalInterval/=10
+    interval*=10
     return false
   }
-  for(var i=0; i<6; i++)if(iterFindNotch())return notchDistance
+  for(var i=0; i<6; i++)if(iterFindNotch())return interval
   return 100000
 }
-function getAxisNotches(from,to,notchDistance){
+function getAxisNotches(from,to,interval){
   var x=Math.min(to,from)
-  x=Math.floor(x/notchDistance)*notchDistance
+  x=Math.floor(x/interval)*interval
   var end=Math.max(to,from)
   var notches=[]
-  for(;x<end; x+=notchDistance) notches.push(x)
+  for(;x<end; x+=interval) notches.push(x)
   return notches
 }
 //#endregion

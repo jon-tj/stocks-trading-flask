@@ -8,6 +8,8 @@ class Viewport{
         this.height = height;
         this.x = 0;
         this.y = height-1;
+        this.fitVertical=false;
+        this.fitVerticalTarget=null;
     }
     transformX(x=0){ return remap(x, this.x-this.width, this.x+this.width, 0, canvas.width) }
     transformY(y=0){ return remap(y, this.y-this.height, this.y+this.height, canvas.height, 0) }
@@ -22,6 +24,9 @@ class Viewport{
     pan(dx, dy){
         this.x += dx;
         this.y += dy;
+        if(this.fitVertical && this.fitVerticalTarget!=null){
+            this.fitDataVertical(this.fitVerticalTarget);
+        }
     }
     
     zoom(offset){
@@ -40,6 +45,7 @@ class Viewport{
     }
     fitData(data,w=90){
         const n=Object.keys(data).length;
+        if(n<2) return;
         this.width=w/2;
         this.x=-this.width+4;
         var min=data[n-1];
@@ -49,6 +55,24 @@ class Viewport{
             if(data[i]<min) min=data[i];
             if(data[i]>max) max=data[i];
         }
+        this.height=(max-min)/2;
+        this.height+=40*this.dy;
+        this.y=(max+min)/2;
+    }
+    fitDataVertical(data){
+        const n=Object.keys(data).length;
+        if(n<2) return;
+        
+        var i=n+Math.floor(this.left)-1;
+        const end=Math.min(n,n+Math.floor(this.right))
+        var min=data[i];
+        var max=data[i];
+        
+        for(;i<end; i++){
+            if(data[i]<min) min=data[i];
+            if(data[i]>max) max=data[i];
+        }
+
         this.height=(max-min)/2;
         this.height+=40*this.dy;
         this.y=(max+min)/2;

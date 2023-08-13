@@ -1,7 +1,9 @@
 :root{
     --bg: #292a2e;
+    --editor-bg: #35363d;
     --navbar: #34353a;
     --navbar-primary: #a8b3fd;
+    --navbar-secondary: #474950;
     --navbar-field-bg: #141518;
     
     --axes: #8a8c92;
@@ -16,24 +18,27 @@ body{
 }
 canvas{
     position: absolute;
-    top:2.4em; left: 0; bottom: 0; right: 0;
+    top:2.6em; left: 0; bottom: 0; right: 0;
 }
 #navbar{
     position: absolute;
     top: 0; left: 0; right: 0;
-    height:2.4em;
+    height:2.6em;
     background-color: var(--navbar);
     z-index: 10;
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.7);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+    cursor:default;
+    border-bottom: 1px solid var(--navbar-secondary);
 }
 section#search-container{
     padding: 0.3em;
     border-radius: 0.5em;
     width: fit-content;
     background-color: var(--navbar-field-bg);
-    margin-top: 0.3em;
+    margin-top: 0.4em;
     margin-left: 1em;
     position: relative;
+    top:-0.3em;
     border: 1px solid var(--navbar);
     display: inline-block;
 }
@@ -71,4 +76,39 @@ li.search-result>img,
 li.search-result>p{
     margin: 0.5em;
     display: inline-block;
+}
+.icon{
+    height:1.4em;
+    position: relative;
+    top:0.3em;
+    cursor: pointer;
+    border-radius: 50%;
+    background-color: var(--navbar);
+    transition: background-color 0.2s;
+    padding:0.3em;
+}
+.icon:hover{
+    background-color: var(--navbar-field-bg);
+}
+span.icon{
+    color:var(--navbar-primary);
+    border-radius: 1em;
+    padding:0.4em;
+    padding-left: 0.6em;
+    padding-right: 0.6em;
+    position: relative;
+    top:0;
+}
+.icon.active:hover,
+.icon.active{
+    background-color: var(--navbar-secondary);
+}
+section.inline{
+    display: inline;
+}
+section.bordered{
+    border-left: 1px solid var(--navbar-primary);
+    position: relative;
+    top:-0.3em;
+    padding: 0.2em;
 }
