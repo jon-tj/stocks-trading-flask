@@ -51,7 +51,25 @@ def api_python():
     df=loadedQuotes[ticker]
     script=request.get_json().replace('%3d','=')
     res,legend=run_script(script,df,ticker)
-    return json.dumps({'legend':legend,'values':[r for r in res]}).replace('NaN','null')
+    return graph(res,legend)
+def graph(res,legend):
+    if isinstance(res,list) and len(res)>0:
+        if isinstance(res[0],dict):
+            for i in range(len(res)):
+                res[i]['values']=[v for v in res[i]['values']]
+            return json.dumps({'legend':legend,'graphs':res})
+        elif isinstance(res[0],pd.Series):
+            return json.dumps({'legend':legend,'graphs':[{'values':[r for r in res]} for res in res]})
+        else:
+            return json.dumps({'legend':legend,'graphs':[{'values':res} for res in res]})
+    else:
+        if isinstance(res,dict):
+            res['values']=[v for v in res['values']]
+            return json.dumps({'legend':legend,'graphs':[res]})
+        elif isinstance(res,pd.Series):
+            return json.dumps({'legend':legend,'graphs':[{'values':[r for r in res]}]})
+        else:
+            return json.dumps({'legend':legend,'graphs':[{'values':res}]})
 
 def run_script(script,df,ticker):
     # NOTE: some escape characters have not been replaced.
@@ -88,7 +106,7 @@ def api_get_prefab(p):
         df=data_handler.download_quotes(ticker)
         loadedQuotes[ticker]=df
     res,legend=run_script(prefabs[p]['code'],df,ticker)
-    return json.dumps({'legend':legend,'values':[r for r in res]}).replace('NaN','null')
+    return graph(res,legend)
 
 @app.route("/api/prefabs", methods=['POST'])
 def api_post_prefab():

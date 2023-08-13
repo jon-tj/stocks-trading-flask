@@ -105,18 +105,12 @@ function loadScript(key='sma'){
     {
         // we wish to run the code
         fetch('/api/prefabs/'+key+'?ticker='+activeTicker)
-        .then(res=>res.json()) // silly cast since res will just be a string but lazy
-        .then(d=>{
-            if(d.values.length<2){
-                var err="No data to plot :/ Have you specified a ticker?"
-                die(err);
-                return;
-            }
-            y=[]
-            for(var i=0;i<d.values.length;i++) y.push(d.values[i])
-            renderables.push(Graph.createLinear(d.legend,y,graphColors[renderables.length%graphColors.length]));
-            console.log(renderables);
+        .then(response => response.text())
+        .then(d =>{
+            d=JSON.parse(d.replaceAll('NaN','null'))
+            receiveGraphResponse(d);
             render();
+            pyPrint(">"+d.legend)
         });
     }
 }

@@ -1,14 +1,16 @@
 class Graph{
-    constructor(name,x,y,color){
+    constructor(name,x,y,color,lineWidth=1){
         this.name=name;
         this.x=x;
         this.y=y;
         this.color=color;
         this.linearX=false;
+        this.lineWidth=lineWidth;
     }
     render(){
         ctx.beginPath();
         ctx.strokeStyle=this.color;
+        ctx.lineWidth=this.lineWidth;
         if(this.linearX){
             var i=Math.max(0,this.y.length+Math.floor(view.left)-1);
             const end=Math.min(this.y.length,this.y.length+Math.ceil(view.right))
@@ -27,12 +29,24 @@ class Graph{
         }
         ctx.stroke();
     }
-    static createLinear(name,y,color){
-        var graph=new Graph(name,[],y,color);
+    static createLinear(name,y,color,lineWidth=1){
+        var graph=new Graph(name,[],y,color,lineWidth);
         graph.linearX=true;
         return graph;
     }
 
+}
+class GraphsCollection{
+    constructor(name,graphs=[]){
+        this.name=name;
+        this.graphs=graphs;
+    }
+    render(){
+        for(let graph of this.graphs) graph.render();
+    }
+    push(graph){
+        this.graphs.push(graph);
+    }
 }
 class CandleChart{
     constructor(name,data,color){
