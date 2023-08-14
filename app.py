@@ -56,7 +56,9 @@ def graph(res,legend):
     if isinstance(res,list) and len(res)>0:
         if isinstance(res[0],dict):
             for i in range(len(res)):
-                res[i]['values']=[v for v in res[i]['values']]
+                # can also contain other renderable objects, like fill_between. these dont have "values"
+                if 'values' in res[i]:
+                    res[i]['values']=[v for v in res[i]['values']]
             return json.dumps({'legend':legend,'graphs':res})
         elif isinstance(res[0],pd.Series):
             return json.dumps({'legend':legend,'graphs':[{'values':[r for r in res]} for res in res]})

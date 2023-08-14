@@ -52,21 +52,24 @@ function receiveGraphResponse(d){
     if(!Object.keys(d).includes('graphs') || d.graphs.length==0)
         die("No graphs in response");
     if(d.graphs.length==1){
-        console.log(d.graphs[0].lineWidth)
         renderables.push(Graph.createLinear(
             d.legend,d.graphs[0].values,
             d.graphs[0].color?d.graphs[0].color:graphColors[renderables.length%graphColors.length],
             d.graphs[0].lineWidth?d.graphs[0].lineWidth:1));
     }
     else{
-
         var gc=new GraphsCollection(d.legend);
-        for(var i=0;i<d.graphs.length;i++)
-            gc.push(Graph.createLinear(
-                d.graphs[i].legend?d.graphs[i].legend:'',
-                d.graphs[i].values,
-                d.graphs[i].color?d.graphs[i].color:graphColors[i%graphColors.length],
-                d.graphs[i].lineWidth?d.graphs[i].lineWidth:1));
+        for(var i=0;i<d.graphs.length;i++){
+            if(d.graphs[i].values){
+                gc.push(Graph.createLinear(
+                    d.graphs[i].legend?d.graphs[i].legend:'',
+                    d.graphs[i].values,
+                    d.graphs[i].color?d.graphs[i].color:graphColors[i%graphColors.length],
+                    d.graphs[i].lineWidth?d.graphs[i].lineWidth:1));
+            }else{
+                gc.pushRegion(d.graphs[i].fill_between)
+            }
+        }
         renderables.push(gc);
     }
 }

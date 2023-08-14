@@ -65,9 +65,7 @@ function prompt(value,action='welcome'){
 var hidePromptAction=null;
 function welcomePrompt(){
     prompt();
-    console.log("aadw");
     if(search.input){
-        console.log("a");
         var sc=search.input.parentElement;
         sc.parentElement.removeChild(sc);
         var nb=document.querySelector("#prompt-welcome");
