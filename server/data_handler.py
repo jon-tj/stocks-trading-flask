@@ -7,10 +7,10 @@ def pathTo(ticker,market=None,request='quotes'):
     if not request=='quotes': extension='.json' 
     if market is None:
         s = ticker.split('.') # check if market is in ticker: 'EQNR.OL'
-        if(len(s)==2): return 'data/'+request+'/'+s[1]+'/'+s[0]+extension
-        return 'data/'+request+'/nyse/'+ticker+extension # default to NYSE
+        if(len(s)==2): return 'server/data/'+request+'/'+s[1]+'/'+s[0]+extension
+        return 'server/data/'+request+'/nyse/'+ticker+extension # default to NYSE
     ticker=ticker.split('.')[0] # make sure market is not in ticker: 'EQNR.OL' --> 'EQNR'
-    return 'data/'+request+'/'+market+'/'+ticker+extension
+    return 'server/data/'+request+'/'+market+'/'+ticker+extension
 
 def latest_quote(ticker='EQNR'):
     eqnr=yf.Ticker(ticker)
@@ -34,7 +34,7 @@ def load_quotes(ticker='EQNR'): #--> 0.09 seconds
     return data
 
 def load_json(filename):
-    with open('data/'+filename+'.json') as f:
+    with open('server/data/'+filename+'.json') as f:
         data = json.load(f)
     return data
 def get_tickers():

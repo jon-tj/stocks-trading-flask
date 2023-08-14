@@ -8,7 +8,7 @@ import re
 
 loadedQuotes={}
 memory={'ticker':None}
-with open('./py-prefabs.json','r') as f:
+with open('./server/py-prefabs.json','r') as f:
     prefabs=json.load(f)
 
 app = Flask(__name__)
