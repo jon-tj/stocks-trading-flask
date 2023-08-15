@@ -1,0 +1,40 @@
+
+#menu,#content{
+    position: absolute;
+    top:0;
+    bottom: 0;
+}
+#menu{
+    background-color: var(--navbar);
+    left:0;
+    width:calc(20% - 2em);
+    color: var(--navbar-primary);
+    padding: 1em;
+    position: fixed;
+}
+#content{
+    left:20%;
+    width:calc(80% - 10em);
+    padding: 5em;
+    color: rgb(218, 218, 218);
+}
+section{
+    margin-bottom: 3em;
+}
+a{
+    color: var(--navbar-primary);
+}
+h1{
+    display: inline-block;
+    font-size: 24pt;
+    margin-bottom: 1.5em;
+    text-decoration: underline;
+}
+.red{
+    color: red;
+}
+code{
+    background-color: var(--navbar-field-bg);
+    padding-left: 0.2em;
+    padding-right: 0.2em;
+}

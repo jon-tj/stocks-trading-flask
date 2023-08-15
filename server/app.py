@@ -24,19 +24,23 @@ def ROUTE_view_stock(ticker):
 def ROUTE_index():
     return render_template('index.html')
 
+@app.route("/docs")
+def ROUTE_docs():
+    return render_template('docs.html')
+
 #endregion
 
 #region data API endpoints
 
 @app.route("/api/quotes/<ticker>", methods=['GET'])
-def api_quotes(ticker):
+def API_quotes(ticker):
     quotes=data_handler.download_quotes(ticker)
     loadedQuotes[ticker]=quotes
     memory['ticker']=ticker
     return pd.DataFrame.to_json(quotes)
 
 @app.route("/api/tickers", methods=['GET'])
-def api_tickers():
+def API_tickers():
     return json.dumps(data_handler.get_tickers())
 
 #endregion
@@ -44,7 +48,7 @@ def api_tickers():
 #region python API endpoints
 
 @app.route("/api/python", methods=['POST'])
-def api_python():
+def API_python():
     if not memory['ticker']: return json.dumps({'legend':None,'values':[],'target':None}) #wHat
 
     ticker=memory['ticker']
@@ -98,7 +102,7 @@ def get_script_symbol(script,symbol,placeholder):
     return legend
 
 @app.route("/api/prefabs", methods=['GET'])
-def api_list_prefabs():
+def API_list_prefabs():
     return json.dumps([
         {
             'key': p,
@@ -110,7 +114,7 @@ def api_list_prefabs():
     ])
 
 @app.route("/api/prefabs/<p>", methods=['GET'])
-def api_get_prefab(p):
+def API_get_prefab(p):
     ticker=request.args.get('ticker')
     if not ticker:
         return json.dumps(prefabs[p]['code'])
@@ -123,7 +127,7 @@ def api_get_prefab(p):
     return graph(res,legend)
 
 @app.route("/api/prefabs", methods=['POST'])
-def api_post_prefab():
+def API_post_prefab():
     code=request.get_json()
     print("receieved code: ",code)
     legend=get_script_symbol(code,'legend','unknown')
@@ -156,19 +160,19 @@ def api_post_prefab():
         prefabs[legend]['description']=description
     with open('./py-prefabs.json','w') as f:
         json.dump(prefabs,f)
-    return make_response(api_list_prefabs(), 200)
+    return make_response(API_list_prefabs(), 200)
 
 @app.route("/api/prefabs/<p>", methods=['DELETE'])
-def api_delete_prefab(p):
+def API_delete_prefab(p):
     if p not in prefabs:
         return make_response(json.dumps({'message':'Prefab does not exist'}), 400)
     del prefabs[p]
     with open('./py-prefabs.json','w') as f:
         json.dump(prefabs,f)
-    return make_response(api_list_prefabs(), 200)
+    return make_response(API_list_prefabs(), 200)
 
 @app.route("/api/peek", methods=['GET'])
-def api_peek_memory():
+def API_peek_memory():
     return json.dumps(memory)
 #endregion
 

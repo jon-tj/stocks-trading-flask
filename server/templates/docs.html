@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200&family=Rubik&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../static/styles/main.css">
+    <link rel="stylesheet" href="../static/styles/docs.css">
+    <link rel="shortcut icon" href="../static/icons/tradeflask_docs.png" >
+    <title>Documentation FT</title>
+</head>
+<body>
+    <aside id="menu">
+        <h2>List of contents</h2>
+        <ul>
+            <li>Scripting in python</li>
+            <li>Testing</li>
+            <li>Using the API</li>
+            <li>Trading live</li>
+        </ul>
+    </aside>
+    <aside id="content">
+        <h1>Documentation</h1>
+        <span>Flask Trader v1.0</span>
+        <section id="scripting">
+            <h2>Scripting in python</h2>
+            <p>
+                Upon running a script, either from the search box or from the editor, the code is sent to the server and evaluated.
+                <em>Note: This can allow unsafe code to be executed, and further security measures need be taken for public use.</em>
+            </p>
+            <p>
+                If the evaluated code returns a recognized format, the server will return a Renderable representation,
+                that will be appended to the draw list in the subplot specified by the <code>target</code> field. Recognized formats are:
+                <ul class="colorme">
+                    <li>[series] &nbsp;- can be either pd.Series or a list</li>
+                    <li>{ 'values':[series], [render-options]:[value], 'target':[target] }</li>
+                    <li>[ {'values':[series], [render-options]:[value] }, ... {special objects} ]</li>
+                    <li>[ [series] ] &nbsp;- return a list of series with default render options</li>
+                </ul>
+                At current, the only special object type supported is <code><span class="colorme">'fill_between'</span>:[objByLegend1, objByLegend2]</code>
+            </p>
+            <p>
+                The following are recognized render option flags:
+                <ul>
+                    <li><code>color</code></li>
+                    <li><code>lineWidth</code> (graph only)</li>
+                    <li><code>legend</code> - displays a legend in the corresponding subplot.</li>
+                </ul>
+                The following are recognized target values:
+                <ul>
+                    <li><span class="colorme">'main'</span> - first subplot created (default).</li>
+                    <li><span class="colorme">'0-100'</span> - creates new subplot with y-axis locked.</li>
+                    <li><span class="colorme">'0-1'</span> - creates new subplot with y-axis locked.</li>
+                    <li><span class="colorme">'active'</span> - last subplot user interacted with.</li>
+                    <li><span class="colorme">[value]</span> - other targets will create a new subplot with same viewport as main.</li>
+                </ul>
+            </p>
+            <p>
+                Scripts can be stored in <a href="api/prefabs">py-prefabs.json</a> with the upload button, or by POSTing to <a href="api/prefabs">api/prefabs</a>,
+                with a valid script passed in the body.
+            </p>
+            <p>
+                All scripts must have at least one parameter to accept the dataframe passed in upon execution.
+                The first parameter is a pandas dataframe containing the latest quotes gathered from the yfinance api.
+                Additional parameters are made available via the user interface, and can be optimized with the built-in parameter optimizer.
+                <br><br>
+                <em>Note: The parameter optimizer is currently experimental, and may not work as expected.</em>
+                <br><br>
+                It is recommended to keep the amount of parameters low, to avoid overfitting.
+            </p>
+        </section>
+        <section id="testing">
+            <h2>Testing</h2>
+            <p>
+                The backtesting engine is simple and intuitive.
+            </p>
+        </section>
+        <section id="api">
+            <h2>Using the API</h2>
+            <p>
+                The backtesting engine is simple and intuitive.
+            </p>
+        </section>
+        <section id="live-trading">
+            <h2>Trading live</h2>
+        </section>
+    </aside>
+</body>
+<script src="../static/js/docs.js" onload="prettyFormat()"></script>
+</html>
