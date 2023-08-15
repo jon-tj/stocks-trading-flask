@@ -64,6 +64,7 @@ function prompt(value,action='welcome'){
 }
 var hidePromptAction=null;
 function welcomePrompt(){
+    promptBox.style.height="200px";
     prompt();
     if(search.input){
         var sc=search.input.parentElement;
@@ -79,6 +80,7 @@ function welcomePrompt(){
     }
 }
 function helpPrompt(){
+    promptBox.style.height="300px";
     var helpList=document.querySelector('#help-list');
     helpList.innerHTML='';
     
@@ -93,9 +95,11 @@ function helpPrompt(){
     for(const h of prefabsNames){
         var li=document.createElement('li');
         li.title='Click to load '+h.names[0]+' script';
-        var parameters=Object.keys(h.parameters).join(', ');
+        var parameters="<em>df</em>";
+        for(const p of Object.keys(h.parameters)){
+            parameters+=", "+p+"="+h.parameters[p];
+        }
         li.innerHTML=`<span>${h.names[0]}</span>,&nbsp;<strong>${h.key}</strong>(${parameters})`;
-        console.log(h.description)
         if(h.description)
             li.innerHTML+=`<br><em class="indented">${h.description}</em>`;
         li.addEventListener('click',()=>{

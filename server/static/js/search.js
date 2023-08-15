@@ -34,6 +34,13 @@ search={
         }
         search.results.innerHTML=""; // clear old results
         q=val.toLowerCase();
+        var parameters=[];
+        if(q.includes("(")){
+            var parametersText=q.substring(q.indexOf("(")+1);
+            if(parametersText.includes(")")) parametersText=parametersText.substring(0,parametersText.indexOf(")"));
+            parameters=parametersText.split(",");
+            q=q.substring(0,q.indexOf("("));
+        }
         if(q[0]=="/"){
             q=q.substring(1);
             for(var command in commands){
@@ -71,13 +78,14 @@ search={
                 `<img class='market' src='/static/icons/python/python.png'> 
                 <p class='name'>${cutoffResultText(prefab.names[0],24)}</p>`;
             li.onclick=()=>{
-                loadScript(prefab.key);
+                loadScript(prefab.key,parameters);
                 search.input.value="";
                 search.results.style.display="none";
             }
             if(search.results.children.length>=4)break;
         }
 
+        if(parameters.length==0)
         for(var t of tickers){
             if(search.results.children.length>=4)break;
             if(!search.matchQuery(q,t.symbol) && !search.matchQuery(q,t.name)) continue;
@@ -118,7 +126,7 @@ function loadTicker(name='EQNR',ticker='EQNR.OL'){
     });
 }
 
-function loadScript(key='sma'){
+function loadScript(key='sma',parameters){
     if(pythonEditor.style.display == "block" || activeTicker===null)
     {
         // we wish to see the code
@@ -135,7 +143,8 @@ function loadScript(key='sma'){
     else
     {
         // we wish to run the code
-        fetch('/api/prefabs/'+key+'?ticker='+activeTicker)
+        var parametersText="&parameters="+parameters.join(",");
+        fetch('/api/prefabs/'+key+'?ticker='+activeTicker+parametersText)
         .then(response => response.text())
         .then(d =>{
             d=JSON.parse(d.replaceAll('NaN','null'))

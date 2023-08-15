@@ -107,7 +107,7 @@ span.icon{
     display: inline;
 }
 .bordered{
-    border-left: 1px solid var(--navbar-primary);
+    border-left: 1px solid var(--navbar-secondary);
     position: relative;
     top:-0.3em;
     padding: 0.2em;
@@ -124,4 +124,7 @@ span.icon{
     position: absolute;
     bottom: 0;
     right: 1em;
+}
+.notimplemented{
+    cursor:default;
 }

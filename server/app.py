@@ -81,10 +81,11 @@ def graph(res,legend):
         else:
             return json.dumps({'legend':legend,'target':target,'graphs':[{'values':res}]})
 
-def run_script(script,df,ticker):
+def run_script(script,df,ticker,parameters=""):
     # NOTE: some escape characters have not been replaced.
     # If youre seeing 'unexpected character' errors, add to the code below.
-    script=script.replace('\\n','\n')+"\nres=main(df)"
+    if len(parameters)>0: parameters=","+parameters
+    script=script.replace('\\n','\n')+"\nres=main(df"+parameters+")"
     script=script.replace("\\'","'").replace('\\"','"')
     _vars={'res':None,'df':df}
     exec(script,_vars)
@@ -116,6 +117,7 @@ def API_list_prefabs():
 @app.route("/api/prefabs/<p>", methods=['GET'])
 def API_get_prefab(p):
     ticker=request.args.get('ticker')
+    parameters=request.args.get('parameters')
     if not ticker:
         return json.dumps(prefabs[p]['code'])
     if ticker in loadedQuotes:
@@ -123,7 +125,7 @@ def API_get_prefab(p):
     else:
         df=data_handler.download_quotes(ticker)
         loadedQuotes[ticker]=df
-    res,legend=run_script(prefabs[p]['code'],df,ticker)
+    res,legend=run_script(prefabs[p]['code'],df,ticker,parameters)
     return graph(res,legend)
 
 @app.route("/api/prefabs", methods=['POST'])
@@ -158,7 +160,7 @@ def API_post_prefab():
         prefabs[legend]['parameters']=parameters
     if description:
         prefabs[legend]['description']=description
-    with open('./py-prefabs.json','w') as f:
+    with open('server/py-prefabs.json','w') as f:
         json.dump(prefabs,f)
     return make_response(API_list_prefabs(), 200)
 
@@ -167,7 +169,7 @@ def API_delete_prefab(p):
     if p not in prefabs:
         return make_response(json.dumps({'message':'Prefab does not exist'}), 400)
     del prefabs[p]
-    with open('./py-prefabs.json','w') as f:
+    with open('server/py-prefabs.json','w') as f:
         json.dump(prefabs,f)
     return make_response(API_list_prefabs(), 200)
 
