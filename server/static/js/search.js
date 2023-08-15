@@ -118,6 +118,7 @@ function loadTicker(name='EQNR',ticker='EQNR.OL'){
     .then(d=>{
         activeTicker=ticker;
         activePlot.view.fitData(d['Close'])
+        activePlot.view.fitVerticalTarget=d['Close']
         var r=new CandleChart(name,d,graphColors[activePlot.renderables.length%graphColors.length]);
         activePlot.renderables.push(r);
         render();

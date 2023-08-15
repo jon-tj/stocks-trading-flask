@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for, g, make_re
 import json
 import data_handler
 import pandas as pd
-import base64
+import backtester
 import re
 
 loadedQuotes={}
@@ -47,14 +47,41 @@ def API_tickers():
 
 #region python API endpoints
 
+def flow_flags_in_script(script):
+    lines = script.split("\n")
+    new_lines = []
+    prev_line = None
+    for line in lines:
+        if prev_line and line.strip().replace("#","").startswith(".") and "@" in prev_line and ":" in prev_line:
+            match = re.search(r'@([^:]+):', prev_line)
+            if match:
+                text_between = "@"+match.group(1)+":"
+                line = text_between+line[line.find('.')+1:]
+        new_lines.append(line)
+        prev_line = line
+    new_script="\n".join(new_lines)
+    return new_script
+
 @app.route("/api/python", methods=['POST'])
 def API_python():
-    if not memory['ticker']: return json.dumps({'legend':None,'values':[],'target':None}) #wHat
 
     ticker=memory['ticker']
+    print(ticker)
+    if not ticker:
+        ticker='EQNR.OL'
+        loadedQuotes[ticker]=data_handler.load_quotes(ticker)
     df=loadedQuotes[ticker]
     script=request.get_json().replace('%3d','=')
-    res,legend=run_script(script,df,ticker)
+    script=flow_flags_in_script(script)
+    for v in get_script_symbols(script,'define'):
+        sides=v.split(' ')
+        if len(sides)<2: continue
+        script=script.replace(sides[0],sides[1])
+
+    if '@--' in script: #this is a backtest
+        res,legend=backtester.test_script(script,df,get_script_symbol(script,"test-days",None))
+    else:
+        res,legend=run_script(script,df,ticker)
     return graph(res,legend)
 def graph(res,legend):
     target="main"
@@ -101,6 +128,15 @@ def get_script_symbol(script,symbol,placeholder):
         legend=script[script.find('@'+symbol+':')+len(symbol)+2:].strip()
         legend=legend[:legend.find('\n')]
     return legend
+def get_script_symbols(script,symbol):
+    values=[]
+    i=0
+    while(i>=0):
+        i=script.find('@'+symbol+':',i+1)
+        if i!=-1:
+            v=script[i+len(symbol)+2:].strip()
+            values.append(v[:v.find('\n')])
+    return values
 
 @app.route("/api/prefabs", methods=['GET'])
 def API_list_prefabs():

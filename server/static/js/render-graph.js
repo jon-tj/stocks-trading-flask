@@ -196,6 +196,12 @@ function pan(dx,dy){
         p.view.pan(dx*p.view.dx,dy*p.view.dy,p==activePlot && !p.lockAxisY);
     });
 }
+function fitDataHorizontal(data){
+    plots.forEach((p)=>{
+        p.view.width=data.length/2;
+        p.view.x=-p.view.width+4;
+    })
+}
 function recalcNotchIntervalGrid(){
     plots.forEach((p)=>{
         p.recalcNotchIntervalGrid();

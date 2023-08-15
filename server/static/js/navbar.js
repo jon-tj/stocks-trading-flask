@@ -1,10 +1,35 @@
 const btnToggleVerticalFit=document.querySelector("#toggleVerticalFit");
+const btnTest=document.getElementById('toggle-test');
+const btnPython=document.getElementById('toggle-python');
+var testScript="", indicatorScript="";
 function togglePython(sender){
-    toggleSenderActive(sender);
-    if(pythonEditor.style.display != "block"){
+    const display=!sender.classList.contains("active");
+    var wasTest=setActive(btnTest,false);
+    var wasPython=setActive(btnPython,false);
+    setActive(sender,display);
+    
+
+    if(display){
         pythonEditor.style.display = "block";
         canvas.style.left=pythonEditor.clientWidth+"px";
         canvas.width=window.innerWidth-pythonEditor.clientWidth;
+        if(wasTest)
+        {
+            testScript=pycode.value;
+            pycode.value=indicatorScript;
+        }
+        else if(wasPython)
+        {
+            indicatorScript=pycode.value;
+            pycode.value=testScript;
+        }
+        else{
+            
+            if(sender==btnPython)
+                pycode.value=indicatorScript;
+            else
+                pycode.value=testScript;
+        }
     }else{
         pythonEditor.style.display = "none";
         canvas.style.left="0";
@@ -15,8 +40,9 @@ function togglePython(sender){
 }
 function toggleVerticalFit(sender){
     toggleSenderActive(sender);
-    view.fitVertical=!view.fitVertical;
-    view.pan(0,0);
+    activePlot.view.fitVertical=!activePlot.view.fitVertical;
+    activePlot.view.pan(0,0);
+    
     render();
 }
 function toggleCursorLines(sender){
@@ -25,9 +51,10 @@ function toggleCursorLines(sender){
     render();
 }
 function setMaxTimeScale(sender){
-    for(r of renderables){
+    for(r of activePlot.renderables){
         if(!r instanceof CandleChart)continue
-        view.fitData(r.data['Close'],r.n);
+        activePlot.view.fitData(r.data['Close'],r.n);
+        recalcNotchIntervalGrid();
         render();
         break;
     }
@@ -56,11 +83,17 @@ function toggleFullscreen(sender){
         document.msExitFullscreen(); // Internet Explorer and Edge
         }
     }
+    recalcViewDest();
+    recalcNotchIntervalGrid();
 }
 function toggleSenderActive(sender){
-    if(sender.classList.contains('active')){
-        sender.classList.remove('active');
-    }else{
-        sender.classList.add('active');
-    }
+    if(sender.classList.contains('active'))
+        setActive(sender,false);
+    else setActive(sender);
+}
+function setActive(sender,active=true){
+    var temp=sender.classList.contains('active');
+    if(active) sender.classList.add('active');
+    else sender.classList.remove('active');
+    return temp;
 }

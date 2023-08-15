@@ -77,5 +77,6 @@ class Viewport{
         this.height=(max-min)/2;
         this.height+=40*this.dy;
         this.y=(max+min)/2;
+        recalcNotchIntervalGrid();
     }
 }

@@ -27,7 +27,7 @@
             <img class="icon" onclick="toggleCursorLines(this)" src="../static/icons/graph/cursorLines.png" title="Cursor lines" alt="cursor lines">
         </section>
         <section class="inline bordered">
-            <span class="icon notimplemented">Test</span>
+            <span class="icon" onclick="togglePython(this,'test')" id="toggle-test">Test</span>
         </section>
         <section class="inline bordered">
             <span class="icon notimplemented">Setup live</span>
@@ -71,8 +71,9 @@
     <canvas> Browser does not support canvas :/ </canvas>
 </body>
 <script src="../static/js/prompt-box.js"></script>
-<script src="../static/js/python-editor.js"></script>
 <script src="../static/js/navbar.js"></script>
+<script src="../static/js/python-editor.js"></script>
+<script src="../static/js/testing.js"></script>
 <script src="../static/js/renderables.js"></script>
 <script src="../static/js/die.js"></script>
 <script src="../static/js/viewport.js"></script>

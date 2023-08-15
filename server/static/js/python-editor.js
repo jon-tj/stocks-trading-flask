@@ -3,7 +3,7 @@ const pycode= document.querySelector("#pycode");
 const pyTerminal= document.querySelector("#terminal");
 var activeScriptKey=null;
 
-pycode.value=`"""
+pycode.value=indicatorScript=`"""
  @legend: SMA($ticker)
  @name: Simple Moving Average|SMA
  @description: Mean of rolling window
@@ -39,11 +39,9 @@ function runPython(){
         pyPrint(">"+d.legend)
     });
 }
-function receiveGraphResponse(d){
-    // targets recognized: main, active, 0-100, 0-1. other targets will create a new plot with same viewport as main.
-    var target=d.target;
-    if(target!="active") activePlot=findPlot(target);
-    if(!activePlot){
+function findOrCreatePlot(target){
+    var plt=findPlot(target);
+    if(!plt){
         // push new plot to bottom of screen, so every plot above needs y to be squished
         var newPlotHeight=0.2; //in screen height ratio
         plots.forEach((p)=>{
@@ -51,30 +49,39 @@ function receiveGraphResponse(d){
             p.dest.height*=1-newPlotHeight;
         });
         recalcViewDest();
-        activePlot=new SubPlot({x:0,y:1-newPlotHeight,width:1,height:newPlotHeight},target);
+        plt=new SubPlot({x:0,y:1-newPlotHeight,width:1,height:newPlotHeight},target);
         var mainPlot=findPlot("main");
-        activePlot.view.x=mainPlot.view.x;
-        activePlot.view.width=mainPlot.view.width;
-        switch(target){
+        plt.view.x=mainPlot.view.x;
+        plt.view.width=mainPlot.view.width;
+        switch(target.split("(")[0]){
             case "0-100":
-                activePlot.view.y=50;
-                activePlot.view.height=50;
-                activePlot.lockAxisY=true;
+                plt.view.y=50;
+                plt.view.height=50;
+                plt.lockAxisY=true;
                 break;
             case "0-1":
-                activePlot.view.y=0.5;
-                activePlot.view.height=0.5;
-                activePlot.lockAxisY=true;
+                plt.view.y=0.5;
+                plt.view.height=0.5;
+                plt.lockAxisY=true;
                 break;
             default:
-                activePlot.view.y=mainPlot.view.y;
-                activePlot.view.height=mainPlot.view.height;
+                plt.view.y=mainPlot.view.y;
+                plt.view.height=mainPlot.view.height;
                 break;
         }
-        plots.push(activePlot);
+        plots.push(plt);
     }
-    if(!Object.keys(d).includes('graphs') || d.graphs.length==0)
+    return plt;
+}
+function receiveGraphResponse(d){
+    // targets recognized: main, active, 0-100, 0-1. other targets will create a new plot with same viewport as main.
+    var target=d.target;
+    //console.log(d);
+    if(target!="active") activePlot=findOrCreatePlot(target);
+    if(!Object.keys(d).includes('graphs') || d.graphs.length==0){
         die("No graphs in response");
+        return;
+    }
     if(d.graphs.length==1){
         activePlot.renderables.push(Graph.createLinear(
             d.legend,d.graphs[0].values,
@@ -82,17 +89,53 @@ function receiveGraphResponse(d){
             d.graphs[0].lineWidth?d.graphs[0].lineWidth:1));
     }
     else{
-        var gc=new GraphsCollection(d.legend);
+        //check if target is the same for all plots
+        var sameTarget=true;
+        target=d.graphs[0].target;
         for(var i=0;i<d.graphs.length;i++){
-            if(d.graphs[i].values){
-                gc.push(Graph.createLinear(
-                    d.graphs[i].legend?d.graphs[i].legend:'',
-                    d.graphs[i].values,
-                    d.graphs[i].color?d.graphs[i].color:graphColors[i%graphColors.length],
-                    d.graphs[i].lineWidth?d.graphs[i].lineWidth:1));
-            }else gc.pushRegion(d.graphs[i].fill_between)
+            if(d.graphs[i].target!=target){
+                sameTarget=false;
+                break;
+            }
         }
-        activePlot.renderables.push(gc);
+        if(sameTarget){
+            var gc=new GraphsCollection(d.legend);
+            for(var i=0;i<d.graphs.length;i++){
+                if(d.graphs[i].values){
+                    gc.push(Graph.createLinear(
+                        d.graphs[i].legend?d.graphs[i].legend:'',
+                        d.graphs[i].values,
+                        d.graphs[i].color?d.graphs[i].color:graphColors[i%graphColors.length],
+                        d.graphs[i].lineWidth?d.graphs[i].lineWidth:1));
+                }else gc.pushRegion(d.graphs[i].fill_between)
+            }
+            activePlot.renderables.push(gc);
+        }else{
+            var prevVals=[];
+            d.graphs.forEach((g)=>{
+                var g_target=g.target;
+                if(!g_target) g_target='main';
+                var plt=findOrCreatePlot(g_target);
+                if(g.values){
+                    prevVals=g.values;
+                    plt.renderables.push(Graph.createLinear(
+                        g.legend,g.values,
+                        g.color?g.color:graphColors[plt.renderables.length%graphColors.length],
+                        g.lineWidth?g.lineWidth:1));
+                    if(!plt.lockAxisY) plt.view.fitDataVertical(g.values)
+                }else{
+                    Object.keys(g).forEach((k)=>{
+                        switch(k){
+                            case "fit-horizontal":
+                                if(prevVals)
+                                fitDataHorizontal(prevVals);
+                                recalcNotchIntervalGrid();
+                                break;
+                        }
+                    });
+                }
+            });
+        }
     }
 }
 function pyPrint(text){ pyTerminal.value+=text+'\n' }
