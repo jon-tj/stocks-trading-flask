@@ -7,7 +7,7 @@ class Graph{
         this.linearX=false;
         this.lineWidth=lineWidth;
     }
-    render(start=-1,end=-1,x=-1,dx=-1){
+    render(view,start=-1,end=-1,x=-1,dx=-1){
         var yT=[]
         ctx.beginPath();
         ctx.strokeStyle=this.color;
@@ -50,7 +50,7 @@ class GraphsCollection{
         this.regions=regions;
         this.transformedGraphs={};
     }
-    render(){
+    render(view){
         var n=this.graphs[0].y.length
         var start=Math.max(0,n+Math.floor(view.left)-2);
         var end=Math.min(n,n+Math.ceil(view.right))
@@ -60,7 +60,7 @@ class GraphsCollection{
         var dx=1/view.dx;
 
         for(let graph of this.graphs){
-            var yT=graph.render(start,end,x0,dx);
+            var yT=graph.render(view,start,end,x0,dx);
             if(graph.name!="")
                 this.transformedGraphs[graph.name]=yT;
         }
@@ -117,7 +117,7 @@ class CandleChart{
         this.color=color;
         this.n=Object.keys(this.data['Close']).length;
     }
-    render(){
+    render(view){
         ctx.fillStyle=this.color;
         var i=this.n+Math.floor(view.left)-1;
         const end=Math.min(this.n,this.n+Math.ceil(view.right))

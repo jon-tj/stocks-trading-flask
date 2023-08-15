@@ -45,7 +45,7 @@ def api_tickers():
 
 @app.route("/api/python", methods=['POST'])
 def api_python():
-    if not memory['ticker']: return json.dumps({'legend':None,'values':[]}) #wHat
+    if not memory['ticker']: return json.dumps({'legend':None,'values':[],'target':None}) #wHat
 
     ticker=memory['ticker']
     df=loadedQuotes[ticker]
@@ -53,25 +53,29 @@ def api_python():
     res,legend=run_script(script,df,ticker)
     return graph(res,legend)
 def graph(res,legend):
+    target="main"
+    if "target" in res:
+        target=res['target']
+        del res['target']
     if isinstance(res,list) and len(res)>0:
         if isinstance(res[0],dict):
             for i in range(len(res)):
                 # can also contain other renderable objects, like fill_between. these dont have "values"
                 if 'values' in res[i]:
                     res[i]['values']=[v for v in res[i]['values']]
-            return json.dumps({'legend':legend,'graphs':res})
+            return json.dumps({'legend':legend,'target':target,'graphs':res})
         elif isinstance(res[0],pd.Series):
-            return json.dumps({'legend':legend,'graphs':[{'values':[r for r in res]} for res in res]})
+            return json.dumps({'legend':legend,'target':target,'graphs':[{'values':[r for r in res]} for res in res]})
         else:
-            return json.dumps({'legend':legend,'graphs':[{'values':res} for res in res]})
+            return json.dumps({'legend':legend,'target':target,'graphs':[{'values':res} for res in res]})
     else:
         if isinstance(res,dict):
             res['values']=[v for v in res['values']]
-            return json.dumps({'legend':legend,'graphs':[res]})
+            return json.dumps({'legend':legend,'target':target,'graphs':[res]})
         elif isinstance(res,pd.Series):
-            return json.dumps({'legend':legend,'graphs':[{'values':[r for r in res]}]})
+            return json.dumps({'legend':legend,'target':target,'graphs':[{'values':[r for r in res]}]})
         else:
-            return json.dumps({'legend':legend,'graphs':[{'values':res}]})
+            return json.dumps({'legend':legend,'target':target,'graphs':[{'values':res}]})
 
 def run_script(script,df,ticker):
     # NOTE: some escape characters have not been replaced.

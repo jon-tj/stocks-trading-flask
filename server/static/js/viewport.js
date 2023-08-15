@@ -3,42 +3,43 @@ function remap(x, in_min, in_max, out_min, out_max) {
 }
 
 class Viewport{
-    constructor(width, height){
-        this.width = width;
-        this.height = height;
+    constructor(srcw, srch,destinationRect){
+        this.width = srcw;
+        this.height = srch;
         this.x = 0;
-        this.y = height-1;
+        this.y = srch-1;
+        this.dest=destinationRect;
         this.fitVertical=false;
         this.fitVerticalTarget=null;
     }
-    transformX(x=0){ return remap(x, this.x-this.width, this.x+this.width, 0, canvas.width) }
-    transformY(y=0){ return remap(y, this.y-this.height, this.y+this.height, canvas.height, 0) }
-    revertX(x){ return remap(x, 0, canvas.width,  this.x-this.width, this.x+this.width) }
-    revertY(y){ return remap(y, canvas.height, 0, this.y-this.height, this.y+this.height) }
-    get dx(){ return this.width*2/canvas.width }
-    get dy(){ return this.height*2/canvas.height }
+    transformX(x=0){ return remap(x, this.x-this.width, this.x+this.width, this.dest.x, this.dest.x+this.dest.width) }
+    transformY(y=0){ return remap(y, this.y-this.height, this.y+this.height, this.dest.y+this.dest.height, this.dest.y) }
+    revertX(x){ return remap(x, this.dest.x, this.dest.x+this.dest.width,  this.x-this.width, this.x+this.width) }
+    revertY(y){ return remap(y, this.dest.y+this.dest.height, this.dest.y, this.y-this.height, this.y+this.height) }
+    get dx(){ return this.width*2/this.dest.width }
+    get dy(){ return this.height*2/this.dest.height }
     get left(){ return this.x-this.width }
     get right(){ return this.x+this.width }
     get top(){ return this.y+this.height }
     get bottom(){ return this.y-this.height }
-    pan(dx, dy){
+    pan(dx, dy,moveY=true){
         this.x += dx;
-        this.y += dy;
+        if(moveY)this.y += dy;
         if(this.fitVertical && this.fitVerticalTarget!=null){
             this.fitDataVertical(this.fitVerticalTarget);
         }
     }
     
-    zoom(offset){
+    zoom(offset,moveY=true){
         var mulX=offset>0?1.1:1/1.1;
-        var mulY=keys.Shift?1:mulX;
+        var mulY=(keys.Shift || !moveY)?1:mulX;
         
         var mx=this.revertX(mouse.position.x)
         var my=this.revertY(mouse.position.y)
         
         var dx=(mx-this.x)*(1-mulX)
         var dy=(my-this.y)*(1-mulY)
-        this.pan(dx, dy); // zooms in on cursor
+        this.pan(dx, moveY?dy:0); // zooms in on cursor
 
         this.width*=mulX;
         this.height*=mulY;

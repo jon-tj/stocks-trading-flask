@@ -10,6 +10,7 @@ function togglePython(sender){
         canvas.style.left="0";
         canvas.width=window.innerWidth;
     }
+    recalcViewDest();
     render();
 }
 function toggleVerticalFit(sender){

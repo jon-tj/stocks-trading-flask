@@ -24,8 +24,9 @@ document.addEventListener("keyup",(e)=>{
     if(Object.keys(keys).includes(e.key)) keys[e.key]=false
 });
 canvas.addEventListener('wheel',(e)=>{ // Zooming
+    setActivePlotToMouse();
     recalcNotchIntervalGrid();
-    view.zoom(e.deltaY)
+    zoom(e.deltaY)
     render()
     return false; // prevents scrolling on the website
   }, false);
@@ -37,6 +38,7 @@ window.addEventListener("resize", (e)=>{
 });
 canvas.addEventListener("contextmenu",(e)=>e.preventDefault()) // no right click menu on canvas
 canvas.addEventListener('mousedown',(e)=>{
+    setActivePlotToMouse();
     mouse.click.button=e.button;
     mouse.click.x=e.offsetX;
     mouse.click.y=e.offsetY;
@@ -47,9 +49,9 @@ canvas.addEventListener('mousemove',(e)=>{
     mouse.position.x=e.offsetX;
     mouse.position.y=e.offsetY;
     if(mouse.click.button==0){
-        view.pan(
-            -(e.offsetX-mouse.click.x)*view.dx,
-            (e.offsetY-mouse.click.y)*view.dy
+        pan(
+            -(e.offsetX-mouse.click.x),
+            (e.offsetY-mouse.click.y)
         );
         mouse.click.x=e.offsetX;
         mouse.click.y=e.offsetY;

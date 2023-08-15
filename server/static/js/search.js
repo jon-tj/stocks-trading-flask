@@ -109,9 +109,9 @@ function loadTicker(name='EQNR',ticker='EQNR.OL'){
     .then(res=>res.json())
     .then(d=>{
         activeTicker=ticker;
-        view.fitData(d['Close'])
-        var r=new CandleChart(name,d,graphColors[renderables.length%graphColors.length]);
-        renderables.push(r);
+        activePlot.view.fitData(d['Close'])
+        var r=new CandleChart(name,d,graphColors[activePlot.renderables.length%graphColors.length]);
+        activePlot.renderables.push(r);
         render();
         hidePrompt();
         return r;
