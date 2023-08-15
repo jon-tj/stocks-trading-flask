@@ -112,3 +112,16 @@ span.icon{
     top:-0.3em;
     padding: 0.2em;
 }
+.link{
+    border-bottom: 1px solid var(--navbar-secondary);
+    width: fit-content;
+    cursor:pointer;
+}
+.link:hover{
+    border-bottom: 1px solid var(--navbar-primary);
+}
+.abs_br{
+    position: absolute;
+    bottom: 0;
+    right: 1em;
+}
