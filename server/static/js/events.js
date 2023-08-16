@@ -44,6 +44,7 @@ canvas.addEventListener('mousedown',(e)=>{
     mouse.click.y=e.offsetY;
     search.results.style.display="none";
     hidePrompt();
+    if(mouse.clickEvent) mouse.clickEvent();
 })
 canvas.addEventListener('mousemove',(e)=>{
     mouse.position.x=e.offsetX;

@@ -110,3 +110,8 @@ function helpPrompt(){
     prompt(null,"help")
 }
 welcomePrompt();
+function settingsPrompt(r){
+    welcomePrompt();
+    prompt(null,"settings")
+    console.log(r.name)
+}

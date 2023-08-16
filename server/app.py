@@ -82,7 +82,7 @@ def API_python():
         output_graphs=[]
         if '@--equity' in script: output_graphs.append('equity')
         if '@--returns' in script: output_graphs.append('returns')
-        res,legend=backtester.test_script(script,df,get_script_symbol(script,"test-days",None),str(output_graphs))
+        res,legend=backtester.test_script(script,df,get_script_symbol(script,'name','Test'),get_script_symbol(script,"test-days",None),str(output_graphs))
     else:
         res,legend=run_script(script,df,ticker)
     return graph(res,legend)
@@ -174,7 +174,7 @@ def API_get_prefab(p):
         output_graphs=[]
         if '@--equity' in script: output_graphs.append('equity')
         if '@--returns' in script: output_graphs.append('returns')
-        res,legend=backtester.test_script(script,df,get_script_symbol(script,'name','Returns'),get_script_symbol(script,"test-days",None),str(output_graphs))
+        res,legend=backtester.test_script(script,df,get_script_symbol(script,'name','Test'),get_script_symbol(script,"test-days",None),str(output_graphs))
         return graph(res,legend)
     res,legend=run_script(script,df,ticker,parameters)
     return graph(res,legend)

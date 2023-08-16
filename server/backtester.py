@@ -39,6 +39,6 @@ def test_single(strat,df,name,days=None,output_graphs=['equity','returns']):
     if 'returns' in output_graphs:
         output.append({'values':[exp(lr)*100-100 for lr in lr],'target':'returns,suffix:%','legend':name+"%",'distribution':'stick-y'})
     if 'equity' in output_graphs:
-        output.append({'values':equity_graph,'color':'yellow','legend':'Equity'})
+        output.append({'values':equity_graph,'color':'yellow','legend':'Equity('+name+")"})
     output.append({'fit-horizontal':True})
     return output

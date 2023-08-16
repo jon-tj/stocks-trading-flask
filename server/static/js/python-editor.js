@@ -80,6 +80,7 @@ function findOrCreatePlot(target,sender=null){
                 break;
         }
         plots.push(plt);
+        plt.recalcNotchIntervalGrid();
     }
     return plt;
 }

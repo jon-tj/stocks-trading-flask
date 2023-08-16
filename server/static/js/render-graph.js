@@ -61,12 +61,56 @@ class SubPlot{
         this.renderables.forEach((r)=>{
             r.render(this.view);
             if(r.name){
+                if(rectContains({x:this.view.dest.x+10,y:legendY-16,width:200,height:20},mouse.position)){
+                    ctx.fillStyle=r.color;
+                    ctx.globalAlpha=0.2;
+                    ctx.fillRect(this.view.dest.x,legendY-18,200,24);
+                    for(let i=0; i<10; i++){
+                        ctx.globalAlpha-=0.019;
+                        ctx.fillRect(this.view.dest.x+200+i*5,legendY-18,5,24);
+                    }
+                    ctx.globalAlpha=1;
+                    if(imgsLoaded){
+                        ctx.drawImage(images.settings,this.view.dest.x+165,legendY-16,20,20)
+                        ctx.drawImage(images.trash,this.view.dest.x+190,legendY-16,20,20)
+                        if(rectContains({x:this.view.dest.x+190,y:legendY-16,width:20,height:20},mouse.position))
+                            mouse.clickEvent=()=>{
+                                this.renderables.splice(this.renderables.indexOf(r),1);
+                                render();
+                            }
+                        if(rectContains({x:this.view.dest.x+165,y:legendY-16,width:20,height:20},mouse.position))
+                            mouse.clickEvent=()=>{settingsPrompt(r);}
+                    }
+                }
                 ctx.font="bold 12pt Arial";
                 ctx.fillStyle=r.color;
                 ctx.fillText(r.name,this.view.dest.x+20,legendY)
-                legendY+=20;
+                legendY+=22;
             }
         })
+        if(this.name!="main"){
+            // button to delete the plot
+            if(rectContains({x:this.view.dest.x+this.view.dest.width-20,y:this.view.dest.y+1,width:20,height:20},mouse.position)){
+                mouse.clickEvent=()=>{
+                    //find the plot directly above it and make it tall enough to cover the region freed up by deleting this plot:
+                    var above = plots
+                        .filter(p => p.view.dest.y < this.view.dest.y) // Filter plots above the current plot
+                        .sort((a, b) => b.view.dest.y - a.view.dest.y) // Sort plots in descending order of y-destination
+                        .shift(); // Get the first (highest) plot
+                    if(above){
+                        above.dest.height+=this.dest.height;
+                        above.recalcViewDest();
+                        above.recalcNotchIntervalGrid();
+                    }
+                    plots.splice(plots.indexOf(this),1);
+                    render();
+                }
+                ctx.fillStyle=theme['bg-light'];
+            }
+            else ctx.fillStyle=theme['bg']
+            ctx.fillRect(this.view.dest.x+this.view.dest.width-21,this.view.dest.y+1,21,21)
+            ctx.drawImage(images.trash,this.view.dest.x+this.view.dest.width-20,this.view.dest.y+1,20,20)
+        }
         ctx.restore();
     }
 
@@ -121,9 +165,22 @@ const mouse={
     click:{button:-1,x:0,y:0,dragDist:0},
     momentum:{x:0,y:0},
     clickTime:Date.now(),
+    clickEvent:null
 }
 const keys={"Shift":false,"Control":false}
 var displayCursorLines=false;
+var imgsLoaded=true;
+function loadImage(url){
+    imgsLoaded=false;
+    var img=new Image();
+    img.src=url;
+    img.onload=()=>{ imgsLoaded=true; }
+    return img;
+}
+const images={
+    trash:loadImage("static/icons/python/delete.png"),
+    settings:loadImage("static/icons/graph/settings.png"),
+}
 //#endregion
 function findPlot(name="main"){
     return plots.find((p)=>{
@@ -146,7 +203,7 @@ function rectContains(rect,point){
 
 //#region load theme from css
 const themeProperties=[
-    "bg",
+    "bg", "bg-light",
     "axes", "grid",
     "navbar-primary",
     "navbar-secondary",
@@ -176,6 +233,7 @@ var theme=getTheme();
 
 //#region do stuff with all subplots
 function render(){
+    mouse.clickEvent=null;
     // clear canvas
     ctx.fillStyle=theme['bg'];
     ctx.fillRect(0,0,canvas.width,canvas.height);
