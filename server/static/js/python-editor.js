@@ -39,7 +39,7 @@ function runPython(){
         pyPrint(">"+d.legend)
     });
 }
-function findOrCreatePlot(target){
+function findOrCreatePlot(target,sender=null){
     var plt=findPlot(target);
     if(!plt){
         // push new plot to bottom of screen, so every plot above needs y to be squished
@@ -50,6 +50,16 @@ function findOrCreatePlot(target){
         });
         recalcViewDest();
         plt=new SubPlot({x:0,y:1-newPlotHeight,width:1,height:newPlotHeight},target);
+        var options=target.split(",");
+        for(var i=1;i<options.length;i++){
+            var args=options[i].split(":");
+            if(args.length==1)continue;
+            switch(args[0]){
+                case "suffix":
+                    plt.suffixAxisY=args[1];
+                    break;
+            }
+        }
         var mainPlot=findPlot("main");
         plt.view.x=mainPlot.view.x;
         plt.view.width=mainPlot.view.width;
@@ -98,6 +108,7 @@ function receiveGraphResponse(d){
                 break;
             }
         }
+        var prevVals=[];
         if(sameTarget){
             var gc=new GraphsCollection(d.legend);
             for(var i=0;i<d.graphs.length;i++){
@@ -106,12 +117,28 @@ function receiveGraphResponse(d){
                         d.graphs[i].legend?d.graphs[i].legend:'',
                         d.graphs[i].values,
                         d.graphs[i].color?d.graphs[i].color:graphColors[i%graphColors.length],
-                        d.graphs[i].lineWidth?d.graphs[i].lineWidth:1));
-                }else gc.pushRegion(d.graphs[i].fill_between)
+                        d.graphs[i].lineWidth?d.graphs[i].lineWidth:1,
+                        d.graphs[i].distribution?d.graphs[i].distribution:null));
+                }else{
+                    if(d.graphs[i].fill_between)
+                        gc.pushRegion(d.graphs[i].fill_between)
+                    else{
+                        Object.keys(d.graphs[i]).forEach((k)=>{
+                            switch(k){
+                                case "fit-horizontal":
+                                    if(prevVals)
+                                    fitDataHorizontal(prevVals);
+                                    recalcNotchIntervalGrid();
+                                    break;
+                            }
+                        });
+                        fitDataVertical();
+                    }
+                }
+                if(d.graphs[i].values) prevVals=d.graphs[i].values;
             }
             activePlot.renderables.push(gc);
         }else{
-            var prevVals=[];
             d.graphs.forEach((g)=>{
                 var g_target=g.target;
                 if(!g_target) g_target='main';
@@ -121,7 +148,8 @@ function receiveGraphResponse(d){
                     plt.renderables.push(Graph.createLinear(
                         g.legend,g.values,
                         g.color?g.color:graphColors[plt.renderables.length%graphColors.length],
-                        g.lineWidth?g.lineWidth:1));
+                        g.lineWidth?g.lineWidth:1,
+                        g.distribution?g.distribution:null));
                     if(!plt.lockAxisY) plt.view.fitDataVertical(g.values)
                 }else{
                     Object.keys(g).forEach((k)=>{
@@ -135,6 +163,7 @@ function receiveGraphResponse(d){
                     });
                 }
             });
+            fitDataVertical();
         }
     }
 }

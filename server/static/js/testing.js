@@ -1,7 +1,7 @@
 testScript=`"""
 (remove @ to suppress output)
 @--equity
-@--dist-returns
+@--returns
 
 @test-days: 2000
 @define:

@@ -79,7 +79,10 @@ def API_python():
         script=script.replace(sides[0],sides[1])
 
     if '@--' in script: #this is a backtest
-        res,legend=backtester.test_script(script,df,get_script_symbol(script,"test-days",None))
+        output_graphs=[]
+        if '@--equity' in script: output_graphs.append('equity')
+        if '@--returns' in script: output_graphs.append('returns')
+        res,legend=backtester.test_script(script,df,get_script_symbol(script,"test-days",None),str(output_graphs))
     else:
         res,legend=run_script(script,df,ticker)
     return graph(res,legend)
@@ -161,7 +164,19 @@ def API_get_prefab(p):
     else:
         df=data_handler.download_quotes(ticker)
         loadedQuotes[ticker]=df
-    res,legend=run_script(prefabs[p]['code'],df,ticker,parameters)
+    script=prefabs[p]['code']
+    script=flow_flags_in_script(script)
+    for v in get_script_symbols(script,'define'):
+        sides=v.split(' ')
+        if len(sides)<2: continue
+        script=script.replace(sides[0],sides[1])
+    if '@--' in script: #this is a backtest
+        output_graphs=[]
+        if '@--equity' in script: output_graphs.append('equity')
+        if '@--returns' in script: output_graphs.append('returns')
+        res,legend=backtester.test_script(script,df,get_script_symbol(script,'name','Returns'),get_script_symbol(script,"test-days",None),str(output_graphs))
+        return graph(res,legend)
+    res,legend=run_script(script,df,ticker,parameters)
     return graph(res,legend)
 
 @app.route("/api/prefabs", methods=['POST'])

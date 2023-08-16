@@ -1,11 +1,12 @@
 class Graph{
-    constructor(name,x,y,color,lineWidth=1){
+    constructor(name,x,y,color,lineWidth=1,distribution=null){
         this.name=name;
         this.x=x;
         this.y=y;
         this.color=color;
         this.linearX=false;
         this.lineWidth=lineWidth;
+        this.distribution=null;
     }
     render(view,start=-1,end=-1,x=-1,dx=-1){
         var yT=[]
@@ -34,12 +35,66 @@ class Graph{
                 ctx.lineTo(view.transformX(this.x[i]),view.transformY(this.y[i]));
         }
         ctx.stroke();
+
+        if(this.distribution){
+            ctx.beginPath();
+            switch(this.distribution.renderMode){
+                case "stick-y":
+                    var mulX=view.dest.width*0.2;
+                    ctx.moveTo(1+this.distribution.values[0].x*mulX,view.transformY(this.distribution.values[0].y));
+                    for(let i=1;i<this.distribution.values.length;i++)
+                        ctx.lineTo(1+this.distribution.values[i].x*mulX,view.transformY(this.distribution.values[i].y));
+                    break;
+            }
+            ctx.lineWidth=2;
+            ctx.strokeStyle='red';
+            ctx.stroke();
+            ctx.globalAlpha=0.5;
+            ctx.fillStyle=this.color;
+            ctx.closePath();
+            ctx.fill();
+            ctx.globalAlpha=1;
+        }
+
         return yT;
     }
-    static createLinear(name,y,color,lineWidth=1){
+    static createLinear(name,y,color,lineWidth=1,distribution=null){
         var graph=new Graph(name,[],y,color,lineWidth);
         graph.linearX=true;
+        if(distribution){
+            var renderMode=distribution;
+            switch(distribution){
+                case "stick-y":
+                    distribution=[];
+                    var max=Math.max(...y);
+                    var min=Math.min(...y);
+                    var nbins=40;
+                    var binIncrement=(max-min)/(nbins-1);
+                    var bins=[];
+                    for(let i=0;i<nbins;i++) bins.push(0);
+                    for(let i=0;i<y.length;i++){
+                        for(let thresh=min; thresh<=max; thresh+=binIncrement){
+                            if(y[i]<=thresh){
+                                bins[Math.floor((thresh-min)/binIncrement)]++;
+                                break;
+                            }
+                        }
+                    }
+                    var maxBin=bins[0];
+                    for(let i=1;i<bins.length;i++) maxBin=Math.max(maxBin,bins[i]);
+                    distribution.push({'x':0,'y':min-binIncrement})
+                    for(let i=0;i<bins.length;i++){
+                        distribution.push({'x':bins[i]/maxBin,'y':min+binIncrement*i});
+                    }
+                    distribution.push({'x':0,'y':max+binIncrement})
+                    graph.distribution={'values':distribution,'renderMode':renderMode};
+                    break;
+            }
+        }
         return graph;
+    }
+    toLinear(){
+        return this.y;
     }
 
 }
@@ -111,6 +166,9 @@ class GraphsCollection{
     }
 }
 class CandleChart{
+    toLinear(){
+        return this.data.Close;
+    }
     constructor(name,data,color){
         this.name=name;
         this.data=data;

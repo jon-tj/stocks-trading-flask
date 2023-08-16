@@ -11,10 +11,13 @@ class SubPlot{
         this.recalcViewDest();
         this.recalcNotchIntervalGrid();
         this.lockAxisY=false;
+        this.suffixAxisY="";
+        this.dist=[];
     }
     recalcNotchIntervalGrid(){
         this.notchIntervalGridX=getNotchInterval(this.view.x-this.view.width,this.view.x+this.view.width,this.view.dest.width*0.5)
-        this.notchIntervalGridY=getNotchInterval(this.view.y-this.view.height,this.view.y+this.view.height,this.view.dest.height)
+        var notchDensity=this.view.dest.height<300?1.8:1;
+        this.notchIntervalGridY=getNotchInterval(this.view.y-this.view.height,this.view.y+this.view.height,this.view.dest.height*notchDensity)
     }
     recalcViewDest(){
         this.view.dest={
@@ -89,12 +92,13 @@ class SubPlot{
         
         places=Math.max(0,2-Math.log10(this.view.height));
         notchesY.forEach((y)=>{
-            if(y<0)return;
+            if(y==0) ctx.strokeStyle='green'
+            else ctx.strokeStyle=theme['grid']
             ctx.beginPath()
             var yT=this.view.transformY(y)
             ctx.moveTo(this.view.dest.x,yT) ; ctx.lineTo(this.view.dest.x+this.view.dest.width,yT)
             ctx.stroke()
-            var yText=y.toFixed(places)
+            var yText=y.toFixed(places)+this.suffixAxisY
             var stringWidth=ctx.measureText(yText).width
             ctx.fillText(yText,this.view.dest.x+this.view.dest.width-10-stringWidth,yT+5)
         })
@@ -200,6 +204,12 @@ function fitDataHorizontal(data){
     plots.forEach((p)=>{
         p.view.width=data.length/2;
         p.view.x=-p.view.width+4;
+    })
+}
+function fitDataVertical(){
+    plots.forEach((p)=>{
+        if(p.lockAxisY || p.renderables.length==0) return;
+        p.view.fitDataVerticalAll(p.renderables);
     })
 }
 function recalcNotchIntervalGrid(){

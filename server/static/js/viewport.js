@@ -60,7 +60,7 @@ class Viewport{
         this.height+=40*this.dy;
         this.y=(max+min)/2;
     }
-    fitDataVertical(data){
+    fitDataVertical(data,test=false){
         const n=Object.keys(data).length;
         if(n<2) return;
         
@@ -73,6 +73,21 @@ class Viewport{
             if(data[i]<min) min=data[i];
             if(data[i]>max) max=data[i];
         }
+        if(test) return {min:min,max:max};
+        this.height=(max-min)/2;
+        this.height+=40*this.dy;
+        this.y=(max+min)/2;
+        recalcNotchIntervalGrid();
+    }
+    fitDataVerticalAll(obj){
+        if(obj.length==0) return;
+        var bounds=[]
+        obj.forEach((o)=>bounds.push(this.fitDataVertical(o.toLinear(),true)));
+        console.log(bounds);
+        var max=bounds[0].max;
+        bounds.forEach((o)=>max=Math.max(max,o.max))
+        var min=bounds[0].min;
+        bounds.forEach((o)=>min=Math.min(min,o.min))
 
         this.height=(max-min)/2;
         this.height+=40*this.dy;
