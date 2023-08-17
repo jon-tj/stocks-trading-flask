@@ -2,13 +2,13 @@ const btnToggleVerticalFit=document.querySelector("#toggleVerticalFit");
 const btnTest=document.getElementById('toggle-test');
 const btnPython=document.getElementById('toggle-python');
 var testScript="", indicatorScript="";
+
 function togglePython(sender){
     const display=!sender.classList.contains("active");
     var wasTest=setActive(btnTest,false);
     var wasPython=setActive(btnPython,false);
     setActive(sender,display);
     
-
     if(display){
         pythonEditor.style.display = "block";
         canvas.style.left=pythonEditor.clientWidth+"px";
@@ -25,15 +25,15 @@ function togglePython(sender){
         }
         else{
             
-            if(sender==btnPython)
-                pycode.value=indicatorScript;
-            else
-                pycode.value=testScript;
+            if(sender==btnTest) pycode.value=testScript;
+            else pycode.value=indicatorScript;
         }
     }else{
         pythonEditor.style.display = "none";
         canvas.style.left="0";
         canvas.width=window.innerWidth;
+        if(wasTest) testScript=pycode.value;
+        else if(wasPython) indicatorScript=pycode.value;
     }
     recalcViewDest();
     render();

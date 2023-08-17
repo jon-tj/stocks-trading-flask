@@ -34,6 +34,7 @@ canvas.addEventListener('wheel',(e)=>{ // Zooming
 window.addEventListener("resize", (e)=>{
     canvas.width=window.innerWidth;
     canvas.height=window.innerHeight-navbar.clientHeight;
+    recalcViewDest();
     render();
 });
 canvas.addEventListener("contextmenu",(e)=>e.preventDefault()) // no right click menu on canvas
