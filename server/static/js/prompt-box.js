@@ -1,5 +1,7 @@
 const promptBox=document.querySelector('#prompt-box');
 const promptDeleteItem=document.querySelector('#prompt-delete-item');
+const promptSettingsItem=document.querySelector('#prompt-settings-item');
+const promptSettingsTable=document.querySelector('#prompt-settings-table');
 const overlayBlack=document.querySelector('#overlay-black');
 var delObj=null;
 var currentPromptAction=null;
@@ -110,8 +112,58 @@ function helpPrompt(){
     prompt(null,"help")
 }
 welcomePrompt();
+var settingsRenderable=null;
 function settingsPrompt(r){
-    welcomePrompt();
+    settingsRenderable=r;
+    promptSettingsItem.innerText=r.name;
+    promptSettingsTable.innerHTML=`
+        <tr><td>
+                <label>Color</label>
+        </td><td>
+                <input name="color" type="color" onchange="updateSettings(this)">
+        </td></tr>
+
+        <tr><td>
+                <label>Visible</label>
+        </td><td>
+                <input name="display" type="checkbox" checked onchange="updateSettings(this)">
+        </td></tr>
+    `;
+    if(r instanceof(Graph)){
+        promptSettingsTable.innerHTML+=`<tr><td>
+                <label>Graph type</label>
+        </td><td>
+                <select name="graphRenderMethod" onchange="updateSettings(this)">
+                    <option value="line">Line</option>
+                    <option value="bar">Bar</option>
+                </select>
+        </td></tr>`;
+    }
+    var dawd=`
+        <tr><td>
+                <label>Time scale</label>
+        </td><td>
+                <select id="time-scale" onchange="updateSettings(this)">
+                    <option value="1">1 second</option>
+                    <option value="5">5 seconds</option>
+                </select>
+        </td></tr>
+
+        <tr><td>
+                <label>Period</label>
+        </td><td>
+                <input type="number" onchange="updateSettings(this)">
+        </td></tr>
+    `;
     prompt(null,"settings")
-    console.log(r.name)
+}
+function updateSettings(sender){
+    if(!settingsRenderable) return;
+    var field=sender.getAttribute("name");
+    var val=sender.value;
+    if(sender.getAttribute("type")=="checkbox") val=sender.checked;
+    if(settingsRenderable[field]!=null)
+        settingsRenderable[field]=val;
+    
+    render();
 }

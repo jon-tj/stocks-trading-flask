@@ -4,14 +4,21 @@ class Graph{
         this.x=x;
         this.y=y;
         this.color=color;
+        this.colorNegative=color; // not used by all graphs
         this.linearX=false;
         this.lineWidth=lineWidth;
         this.distribution=null;
+        this.display=true;
+        this.graphRenderMethod="line"; // also valid "Bar" for linear charts.
+        this.meanY=0;
+        for(var Y of y) this.meanY+=Y;
+        this.meanY/=y.length;
     }
     render(view,start=-1,end=-1,x=-1,dx=-1){
         var yT=[]
         ctx.beginPath();
         ctx.strokeStyle=this.color;
+        ctx.fillStyle=this.color;
         ctx.lineWidth=this.lineWidth;
         if(this.linearX){
             var i=start;
@@ -23,18 +30,28 @@ class Graph{
                 dx=1/view.dx;
             }
             yT.push(view.transformY(this.y[i]));
-            ctx.moveTo(x,yT[yT.length-1]);
-            for(;i<end; i++){
-                x+=dx;
-                yT.push(view.transformY(this.y[i]));
-                ctx.lineTo(x,yT[yT.length-1]);
+            if(this.graphRenderMethod == "line"){
+                ctx.moveTo(x,yT[yT.length-1]);
+                for(;i<end; i++){
+                    x+=dx;
+                    yT.push(view.transformY(this.y[i]));
+                    ctx.lineTo(x,yT[yT.length-1]);
+                }
+                if(this.display) ctx.stroke();
+            }else if(this.graphRenderMethod == "bar"){
+                var y0=view.transformY(this.meanY);
+                for(;i<end; i++){
+                    yT.push(view.transformY(this.y[i]));
+                    ctx.fillRect(x,yT[yT.length-1],dx,y0-yT[yT.length-1]);
+                    x+=dx;
+                }
             }
         }else{
             ctx.moveTo(view.transformX(this.x[0]),view.transformY(this.y[0]));
             for(let i=1;i<this.x.length;i++)
                 ctx.lineTo(view.transformX(this.x[i]),view.transformY(this.y[i]));
+            if(this.display) ctx.stroke();
         }
-        ctx.stroke();
 
         if(this.distribution){
             ctx.beginPath();
@@ -104,8 +121,10 @@ class GraphsCollection{
         this.graphs=graphs;
         this.regions=regions;
         this.transformedGraphs={};
+        this.display=true;
     }
     render(view){
+        if(!this.display) return;
         var n=this.graphs[0].y.length
         var start=Math.max(0,n+Math.floor(view.left)-2);
         var end=Math.min(n,n+Math.ceil(view.right))
@@ -174,8 +193,10 @@ class CandleChart{
         this.data=data;
         this.color=color;
         this.n=Object.keys(this.data['Close']).length;
+        this.display=true;
     }
     render(view){
+        if(!this.display) return;
         ctx.fillStyle=this.color;
         var i=this.n+Math.floor(view.left)-1;
         const end=Math.min(this.n,this.n+Math.ceil(view.right))
