@@ -44,11 +44,12 @@ class Viewport{
         this.width*=mulX;
         this.height*=mulY;
     }
-    fitData(data,w=90){
+    fitData(data,w=90,vertical=true){
         const n=Object.keys(data).length;
         if(n<2) return;
         this.width=w/2;
         this.x=-this.width+4;
+        if(!vertical) return;
         var min=data[n-1];
         var max=data[n-1];
 
@@ -64,7 +65,7 @@ class Viewport{
         const n=Object.keys(data).length;
         if(n<2) return;
         
-        var i=n+Math.floor(this.left)-1;
+        var i=Math.max(0,n+Math.floor(this.left)-1);
         const end=Math.min(n,n+Math.floor(this.right))
         var min=data[i];
         var max=data[i];

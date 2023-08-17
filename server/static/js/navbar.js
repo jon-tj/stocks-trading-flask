@@ -40,6 +40,7 @@ function togglePython(sender){
 }
 function toggleVerticalFit(sender){
     toggleSenderActive(sender);
+    activePlot=findPlot("main");
     activePlot.view.fitVertical=!activePlot.view.fitVertical;
     activePlot.view.pan(0,0);
     
@@ -54,6 +55,10 @@ function setMaxTimeScale(sender){
     for(r of activePlot.renderables){
         if(!r instanceof CandleChart)continue
         activePlot.view.fitData(r.data['Close'],r.n);
+        for(plot of plots)
+        {
+            plot.view.fitData(r.data['Close'],r.n,false);
+        }
         recalcNotchIntervalGrid();
         render();
         break;
