@@ -22,11 +22,11 @@ pycode.addEventListener("keydown", (e) => {
     if(e.ctrlKey && e.key=="Enter") runPython();
 });
 
-function runPython(){
+function runPython(script=null,justReturn=false,parameters="",onComplete=null){
     pyPrint("Running Python Script")
     fetch("/api/python",{
         method: 'POST',
-        body: JSON.stringify(pycode.value),
+        body: JSON.stringify({script:script?script:pycode.value,parameters:parameters}),
         headers: {
             'Content-Type': 'application/json'
         }
@@ -34,9 +34,10 @@ function runPython(){
     .then(response => response.text())
     .then(d =>{
         d=JSON.parse(d.replaceAll('NaN','null'))
-        receiveGraphResponse(d);
+        var renderable=receiveGraphResponse(d,justReturn);
         render();
         pyPrint(">"+d.legend)
+        if(onComplete)onComplete(renderable);
     });
 }
 function findOrCreatePlot(target,sender=null){
@@ -84,7 +85,7 @@ function findOrCreatePlot(target,sender=null){
     }
     return plt;
 }
-function receiveGraphResponse(d){
+function receiveGraphResponse(d,justReturn=false){
     // targets recognized: main, active, 0-100, 0-1. other targets will create a new plot with same viewport as main.
     var target=d.target;
     //console.log(d);
@@ -94,10 +95,14 @@ function receiveGraphResponse(d){
         return;
     }
     if(d.graphs.length==1){
-        activePlot.renderables.push(Graph.createLinear(
+        var g=Graph.createLinear(
             d.legend,d.graphs[0].values,
             d.graphs[0].color?d.graphs[0].color:graphColors[activePlot.renderables.length%graphColors.length],
-            d.graphs[0].lineWidth?d.graphs[0].lineWidth:1));
+            d.graphs[0].lineWidth?d.graphs[0].lineWidth:1);
+        g.parameters=d.parameters;
+        g.script=d.script;
+        if(justReturn) return g;
+        activePlot.push(g);
     }
     else{
         //check if target is the same for all plots
@@ -112,6 +117,7 @@ function receiveGraphResponse(d){
         var prevVals=[];
         if(sameTarget){
             var gc=new GraphsCollection(d.legend);
+            gc.parameters=d.parameters;
             for(var i=0;i<d.graphs.length;i++){
                 if(d.graphs[i].values){
                     gc.push(Graph.createLinear(
@@ -138,7 +144,9 @@ function receiveGraphResponse(d){
                 }
                 if(d.graphs[i].values) prevVals=d.graphs[i].values;
             }
-            activePlot.renderables.push(gc);
+            gc.script=d.script;
+            if(justReturn) return gc;
+            activePlot.push(gc);
         }else{
             d.graphs.forEach((g)=>{
                 var g_target=g.target;

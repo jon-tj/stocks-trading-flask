@@ -27,6 +27,10 @@ class SubPlot{
             height:this.dest.height*canvas.height
         }
     }
+    push(renderable){
+        renderable.parentPlot=this;
+        this.renderables.push(renderable);
+    }
     render(){
         // border the plot:
         ctx.strokeStyle = theme['navbar-secondary'];

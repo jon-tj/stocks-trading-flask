@@ -71,7 +71,12 @@ def API_python():
         ticker='EQNR.OL'
         loadedQuotes[ticker]=data_handler.load_quotes(ticker)
     df=loadedQuotes[ticker]
-    script=request.get_json().replace('%3d','=')
+    r=request.get_json()
+    parameters=r['parameters']
+    parametersText= ','.join([parameters[p] for p in parameters])
+    if not parameters: parameters={}
+    script=r['script'].replace('%3d','=')
+    og_script=script
     script=flow_flags_in_script(script)
     for v in get_script_symbols(script,'define'):
         sides=v.split(' ')
@@ -84,9 +89,9 @@ def API_python():
         if '@--returns' in script: output_graphs.append('returns')
         res,legend=backtester.test_script(script,df,get_script_symbol(script,'name','Test'),get_script_symbol(script,"test-days",None),str(output_graphs))
     else:
-        res,legend=run_script(script,df,ticker)
-    return graph(res,legend)
-def graph(res,legend):
+        res,legend=run_script(script,df,ticker,parametersText)
+    return graph(res,legend,parameters,og_script)
+def graph(res,legend,parameters={},script=None):
     target="main"
     if "target" in res:
         target=res['target']
@@ -97,19 +102,19 @@ def graph(res,legend):
                 # can also contain other renderable objects, like fill_between. these dont have "values"
                 if 'values' in res[i]:
                     res[i]['values']=[v for v in res[i]['values']]
-            return json.dumps({'legend':legend,'target':target,'graphs':res})
+            return json.dumps({'script':script,'parameters':parameters,'legend':legend,'target':target,'graphs':res})
         elif isinstance(res[0],pd.Series):
-            return json.dumps({'legend':legend,'target':target,'graphs':[{'values':[r for r in res]} for res in res]})
+            return json.dumps({'script':script,'parameters':parameters,'legend':legend,'target':target,'graphs':[{'values':[r for r in res]} for res in res]})
         else:
-            return json.dumps({'legend':legend,'target':target,'graphs':[{'values':res} for res in res]})
+            return json.dumps({'script':script,'parameters':parameters,'legend':legend,'target':target,'graphs':[{'values':res} for res in res]})
     else:
         if isinstance(res,dict):
             res['values']=[v for v in res['values']]
-            return json.dumps({'legend':legend,'target':target,'graphs':[res]})
+            return json.dumps({'script':script,'parameters':parameters,'legend':legend,'target':target,'graphs':[res]})
         elif isinstance(res,pd.Series):
-            return json.dumps({'legend':legend,'target':target,'graphs':[{'values':[r for r in res]}]})
+            return json.dumps({'script':script,'parameters':parameters,'legend':legend,'target':target,'graphs':[{'values':[r for r in res]}]})
         else:
-            return json.dumps({'legend':legend,'target':target,'graphs':[{'values':res}]})
+            return json.dumps({'script':script,'parameters':parameters,'legend':legend,'target':target,'graphs':[{'values':res}]})
 
 def run_script(script,df,ticker,parameters=""):
     # NOTE: some escape characters have not been replaced.
@@ -159,6 +164,13 @@ def API_list_prefabs():
 def API_get_prefab(p):
     ticker=request.args.get('ticker')
     parameters=request.args.get('parameters')
+    parametersValues=[] if not parameters else parameters.split(',')
+    parametersDict={}
+    i=0
+    for param in prefabs[p]['parameters']:
+        # should probably check for type so we dont mistakenly send everything as a string
+        parametersDict[param]=parametersValues[i] if i<len(parametersValues) else prefabs[p]['parameters'][param]
+        i+=1
     if not ticker:
         return json.dumps(prefabs[p]['code'])
     if ticker in loadedQuotes:
@@ -179,7 +191,7 @@ def API_get_prefab(p):
         res,legend=backtester.test_script(script,df,get_script_symbol(script,'name','Test'),get_script_symbol(script,"test-days",None),str(output_graphs))
         return graph(res,legend)
     res,legend=run_script(script,df,ticker,parameters)
-    return graph(res,legend)
+    return graph(res,legend,parametersDict,prefabs[p]['code'])
 
 @app.route("/api/prefabs", methods=['POST'])
 def API_post_prefab():

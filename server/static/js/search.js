@@ -127,8 +127,8 @@ function loadTicker(name='EQNR',ticker='EQNR.OL'){
     });
 }
 
-function loadScript(key='sma',parameters){
-    if(pythonEditor.style.display == "block" || activeTicker===null)
+function loadScript(key='sma',parameters,justReturn=false,runAnyway=false){
+    if(!runAnyway && (pythonEditor.style.display == "block" || activeTicker===null))
     {
         // we wish to see the code
         fetch('/api/prefabs/'+key)
@@ -157,7 +157,8 @@ function loadScript(key='sma',parameters){
         .then(response => response.text())
         .then(d =>{
             d=JSON.parse(d.replaceAll('NaN','null'))
-            receiveGraphResponse(d);
+            var renderable= receiveGraphResponse(d,justReturn);
+            if(justReturn) return renderable;
             render();
             hidePrompt(false);
             pyPrint(">"+d.legend)

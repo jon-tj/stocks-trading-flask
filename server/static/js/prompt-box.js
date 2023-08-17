@@ -118,26 +118,33 @@ function settingsPrompt(r){
     promptSettingsItem.innerText=r.name;
     promptSettingsTable.innerHTML=`
         <tr><td>
-                <label>Color</label>
+            <label>Color</label>
         </td><td>
-                <input name="color" type="color" onchange="updateSettings(this)">
+            <input id="color" name="color" type="color" onchange="updateSettings(this)">
         </td></tr>
 
         <tr><td>
-                <label>Visible</label>
+            <label>Visible</label>
         </td><td>
-                <input name="display" type="checkbox" checked onchange="updateSettings(this)">
+            <input id="display" name="display" type="checkbox" checked onchange="updateSettings(this)">
         </td></tr>
     `;
     if(r instanceof(Graph)){
         promptSettingsTable.innerHTML+=`<tr><td>
-                <label>Graph type</label>
+            <label>Graph type</label>
         </td><td>
-                <select name="graphRenderMethod" onchange="updateSettings(this)">
-                    <option value="line">Line</option>
-                    <option value="bar">Bar</option>
-                </select>
+            <select id="graphRenderMethod" name="graphRenderMethod" onchange="updateSettings(this)">
+                <option value="line">Line</option>
+                <option value="bar">Bar</option>
+            </select>
         </td></tr>`;
+        Object.keys(settingsRenderable.parameters).forEach((p)=>{
+            promptSettingsTable.innerHTML+=`<tr><td>
+                <label>${p}</label>
+            </td><td>
+                <input type="number" name="${p}" onchange="updateSettings(this)">
+            </td></tr>`;
+        })
     }
     var dawd=`
         <tr><td>
@@ -164,6 +171,14 @@ function updateSettings(sender){
     if(sender.getAttribute("type")=="checkbox") val=sender.checked;
     if(settingsRenderable[field]!=null)
         settingsRenderable[field]=val;
-    
+    else{
+        if(settingsRenderable.parameters[field]!=null)
+        settingsRenderable.parameters[field]=val;
+        runPython(settingsRenderable.script,true,settingsRenderable.parameters,(newObj)=>{
+            settingsRenderable.parentPlot.push(newObj);
+            settingsRenderable.parentPlot.renderables.splice(settingsRenderable.parentPlot.renderables.indexOf(settingsRenderable),1);
+            settingsRenderable=newObj;
+        });
+    }
     render();
 }

@@ -11,8 +11,10 @@ class Graph{
         this.display=true;
         this.graphRenderMethod="line"; // also valid "Bar" for linear charts.
         this.meanY=0;
+        this.parameters={};
         for(var Y of y) this.meanY+=Y;
         this.meanY/=y.length;
+        var parentPlot=null;
     }
     render(view,start=-1,end=-1,x=-1,dx=-1){
         var yT=[]
@@ -122,6 +124,8 @@ class GraphsCollection{
         this.regions=regions;
         this.transformedGraphs={};
         this.display=true;
+        this.parameters={};
+        var parentPlot=null;
     }
     render(view){
         if(!this.display) return;
@@ -194,6 +198,7 @@ class CandleChart{
         this.color=color;
         this.n=Object.keys(this.data['Close']).length;
         this.display=true;
+        var parentPlot=null;
     }
     render(view){
         if(!this.display) return;
