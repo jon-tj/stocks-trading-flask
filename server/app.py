@@ -148,7 +148,8 @@ def API_list_prefabs():
             'key': p,
             'names': prefabs[p]['names'],
             'parameters': prefabs[p]['parameters'],
-            'description': prefabs[p]['description'] if 'description' in prefabs[p] else None
+            'description': prefabs[p]['description'] if 'description' in prefabs[p] else None,
+            'type': prefabs[p]['type'] if 'type' in prefabs[p] else 'unknown'
         }
         for p in prefabs
     ])
@@ -209,6 +210,7 @@ def API_post_prefab():
                 parameters[parametersText[i]]=0
 
         prefabs[legend]['parameters']=parameters
+        prefabs[legend]['type']="strategy" if "@--" in code else "indicator"
     if description:
         prefabs[legend]['description']=description
     with open('server/py-prefabs.json','w') as f:

@@ -19,15 +19,13 @@
 <body>
     <section id="navbar">
         <!--Search bar appears here when prompt is closed-->
-        <section class="inline" style="margin-right: 0.3em;">
-            <img class="icon" onclick="togglePython(this)" src="../static/icons/python/python.png" id="toggle-python" title="Open python editor" alt="python">
+        <section class="inline" style="margin-right: 0.3em; margin-left: 0.5em;">
+            <img class="icon" onclick="togglePython(this)" src="../static/icons/python/python.png" id="toggle-python" title="Open indicator editor" alt="python">
+            <img class="icon" onclick="togglePython(this,'test')" src="../static/icons/python/test.png" id="toggle-test" title="Open strategy editor" alt="python">
             <img class="icon" id="toggleVerticalFit" onclick="toggleVerticalFit(this)" src="../static/icons/graph/fitVertically.png" title="Toggle vertical fit" alt="Fit vertically">
             <img class="icon" onclick="setMaxTimeScale(this)" src="../static/icons/graph/timeMax.png" title="Set max time-scale" alt="time max">
             <img class="icon" onclick="toggleFullscreen(this)" src="../static/icons/graph/fullscreen.png" title="Toggle fullscreen" alt="fullscreen">
             <img class="icon" onclick="toggleCursorLines(this)" src="../static/icons/graph/cursorLines.png" title="Cursor lines" alt="cursor lines">
-        </section>
-        <section class="inline bordered">
-            <span class="icon" onclick="togglePython(this,'test')" id="toggle-test">Test</span>
         </section>
         <section class="inline bordered">
             <span class="icon notimplemented">Setup live</span>

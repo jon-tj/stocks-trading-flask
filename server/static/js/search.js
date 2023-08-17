@@ -1,4 +1,5 @@
 const imgTogglePython=document.querySelector('#toggle-python');
+const imgToggleTest=document.querySelector('#toggle-test');
 var activeTicker=null;
 function cutoffResultText(text,cutoffLength=20){
     if(text.length>cutoffLength){
@@ -74,8 +75,10 @@ search={
             var li=document.createElement('li');
             search.results.append(li);
             li.classList.add('search-result');
+            var type="python";
+            if(prefab.type=="strategy") type="test";
             li.innerHTML=
-                `<img class='market' src='/static/icons/python/python.png'> 
+                `<img class='market' src='/static/icons/python/${type}.png'> 
                 <p class='name'>${cutoffResultText(prefab.names[0],24)}</p>`;
             li.onclick=()=>{
                 loadScript(prefab.key,parameters);
@@ -122,7 +125,7 @@ function loadTicker(name='EQNR',ticker='EQNR.OL'){
         var r=new CandleChart(name,d,graphColors[activePlot.renderables.length%graphColors.length]);
         activePlot.renderables.push(r);
         render();
-        hidePrompt();
+        hidePrompt(false);
         return r;
     });
 }
@@ -134,17 +137,25 @@ function loadScript(key='sma',parameters){
         fetch('/api/prefabs/'+key)
         .then(res=>res.json()) // silly cast since res will just be a string but lazy
         .then(d=>{
-            pycode.value=d;
             activeScriptKey=key;
-            if(pythonEditor.style.display != "block")
-            togglePython(imgTogglePython)
+            if(d.includes("@--") || d.includes("@test-days")){
+                pycode.value= testScript=d;
+                if(!imgToggleTest.classList.contains('active'))
+                togglePython(imgToggleTest,'test')
+            }else{
+                pycode.value=indicatorScript=d;
+                if(!imgTogglePython.classList.contains('active'))
+                togglePython(imgTogglePython)
+            }
             hidePrompt(false);
         });
     }
     else
     {
         // we wish to run the code
-        var parametersText="&parameters="+parameters.join(",");
+        var parametersText=""
+        if(parameters && parameters.length>0)
+            parametersText="&parameters="+parameters.join(",");
         fetch('/api/prefabs/'+key+'?ticker='+activeTicker+parametersText)
         .then(response => response.text())
         .then(d =>{
