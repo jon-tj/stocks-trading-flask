@@ -120,29 +120,34 @@ function settingsPrompt(r){
         <tr><td>
             <label>Color</label>
         </td><td>
-            <input id="color" name="color" type="color" onchange="updateSettings(this)">
+            <input id="color" name="color" type="color" onchange="updateSettings(this)" value=${settingsRenderable.color}>
         </td></tr>
 
         <tr><td>
             <label>Visible</label>
         </td><td>
-            <input id="display" name="display" type="checkbox" checked onchange="updateSettings(this)">
+            <input id="display" name="display" type="checkbox" ${settingsRenderable.display?'checked':''} onchange="updateSettings(this)">
         </td></tr>
     `;
     if(r instanceof(Graph)){
         promptSettingsTable.innerHTML+=`<tr><td>
             <label>Graph type</label>
         </td><td>
-            <select id="graphRenderMethod" name="graphRenderMethod" onchange="updateSettings(this)">
-                <option value="line">Line</option>
-                <option value="bar">Bar</option>
+            <select id="graphRenderMethod" name="graphRenderMethod" onchange="updateSettings(this)" value="bar">
+                <option value="line" ${settingsRenderable.graphRenderMethod=='line'?'selected':''}>Line</option>
+                <option value="bar" ${settingsRenderable.graphRenderMethod=='bar'?'selected':''}>Bar</option>
             </select>
+        </td></tr>
+        <tr><td>
+            <label>Line width</label>
+        </td><td>
+            <input type="number" name="lineWidth" onchange="updateSettings(this)" value=${settingsRenderable.lineWidth}>
         </td></tr>`;
         Object.keys(settingsRenderable.parameters).forEach((p)=>{
             promptSettingsTable.innerHTML+=`<tr><td>
                 <label>${p}</label>
             </td><td>
-                <input type="number" name="${p}" onchange="updateSettings(this)">
+                <input type="number" name="${p}" onchange="updateSettings(this)" value=${settingsRenderable.parameters[p]}>
             </td></tr>`;
         })
     }
@@ -169,16 +174,23 @@ function updateSettings(sender){
     var field=sender.getAttribute("name");
     var val=sender.value;
     if(sender.getAttribute("type")=="checkbox") val=sender.checked;
-    if(settingsRenderable[field]!=null)
+    if(settingsRenderable[field]!=null){
+        if(typeof settingsRenderable[field]=== 'number')
+            val=parseFloat(val);
         settingsRenderable[field]=val;
+        render();
+    }
     else{
         if(settingsRenderable.parameters[field]!=null)
         settingsRenderable.parameters[field]=val;
         runPython(settingsRenderable.script,true,settingsRenderable.parameters,(newObj)=>{
-            settingsRenderable.parentPlot.push(newObj);
-            settingsRenderable.parentPlot.renderables.splice(settingsRenderable.parentPlot.renderables.indexOf(settingsRenderable),1);
-            settingsRenderable=newObj;
+            if(settingsRenderable.graphs && newObj.graphs){
+                settingsRenderable.graphs=newObj.graphs;
+            }
+            else if(settingsRenderable.y && newObj.y){
+                settingsRenderable.y=newObj.y;
+            }
+            render();
         });
     }
-    render();
 }

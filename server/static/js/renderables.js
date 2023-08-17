@@ -44,7 +44,7 @@ class Graph{
                 var y0=view.transformY(this.meanY);
                 for(;i<end; i++){
                     yT.push(view.transformY(this.y[i]));
-                    ctx.fillRect(x,yT[yT.length-1],dx,y0-yT[yT.length-1]);
+                    if(this.display) ctx.fillRect(x,yT[yT.length-1],dx,y0-yT[yT.length-1]);
                     x+=dx;
                 }
             }
