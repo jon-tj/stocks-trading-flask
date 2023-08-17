@@ -114,7 +114,8 @@ def graph(res,legend):
 def run_script(script,df,ticker,parameters=""):
     # NOTE: some escape characters have not been replaced.
     # If youre seeing 'unexpected character' errors, add to the code below.
-    if len(parameters)>0: parameters=","+parameters
+    if parameters and len(parameters)>0: parameters=","+parameters
+    else: parameters=""
     script=script.replace('\\n','\n')+"\nres=main(df"+parameters+")"
     script=script.replace("\\'","'").replace('\\"','"')
     _vars={'res':None,'df':df}

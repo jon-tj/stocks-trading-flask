@@ -64,9 +64,27 @@
         </section>
         <section name="settings">
             <h2>Settings</h2>
-            <ul id="help-list">
-                <li>SMA(ticker,period)</li>
-            </ul>
+            <table>
+                <tr>
+                    <td>
+                        <label for="time-scale">Time scale</label>
+                    </td>
+                    <td>
+                        <select id="time-scale" onchange="updateSettings()">
+                            <option value="1">1 second</option>
+                            <option value="5">5 seconds</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="max-time-scale">Period</label>
+                    </td>
+                    <td>
+                        <input type="number" name="a" onkeyup="updateSettings()">
+                    </td>
+                </tr>
+            </table>
         </section>
     </section>
     <section id="overlay-black"></section>

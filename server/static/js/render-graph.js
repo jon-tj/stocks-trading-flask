@@ -59,9 +59,12 @@ class SubPlot{
         // renderables
         var legendY=40+this.view.dest.y;
         this.renderables.forEach((r)=>{
-            r.render(this.view);
+            var hover=false;
             if(r.name){
+                var legendText=r.name;
                 if(rectContains({x:this.view.dest.x+10,y:legendY-16,width:200,height:20},mouse.position)){
+                    hover=true;
+                    legendText=cutoffResultText(legendText,13);
                     ctx.fillStyle=r.color;
                     ctx.globalAlpha=0.2;
                     ctx.fillRect(this.view.dest.x,legendY-18,200,24);
@@ -84,9 +87,12 @@ class SubPlot{
                 }
                 ctx.font="bold 12pt Arial";
                 ctx.fillStyle=r.color;
-                ctx.fillText(r.name,this.view.dest.x+20,legendY)
+                ctx.fillText(legendText,this.view.dest.x+20,legendY)
                 legendY+=22;
             }
+            if(hover && r.lineWidth) r.lineWidth+=1;
+            r.render(this.view);
+            if(hover && r.lineWidth) r.lineWidth-=1;
         })
         if(this.name!="main"){
             // button to delete the plot

@@ -23,14 +23,11 @@ search={
             "EMA"
         ]
         search.input.placeholder=placeholders[Math.floor(Math.random()*placeholders.length)];
-        //search.input.value="";
-        //search.results.style.display="none";
-        // click top result in results
-        //search.results.children[0].click();
     },
     onkeyup:(val)=>{
         if(val.length<1){
             search.results.style.display="none";
+            search.results.innerHTML="";
             return;
         }
         search.results.innerHTML=""; // clear old results
