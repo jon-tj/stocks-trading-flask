@@ -1,5 +1,5 @@
-testScript=`"""
-(remove @ to suppress output)
+testScript=`
+"""
 @--equity
 @--returns
 
@@ -7,14 +7,18 @@ testScript=`"""
 @define:
 . BUY 1
 . SELL -1
-. HOLD 0
-. _close df['Close']
-. close df['Close'][i]
+. close df['Close']
 """ 
 
 def main(df,i):
-    if i<1: return HOLD
-    if _close[i]<_close[i-1]:
+    if i<1: return SELL
+    if close[i]<close[i-1]:
         return BUY
     else:
-        return SELL`;
+        return SELL
+
+def init(ticker):
+    df=load_quotes(ticker)
+    return len(df)
+
+`;

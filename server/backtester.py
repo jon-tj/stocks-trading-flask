@@ -1,19 +1,29 @@
 import numpy as np
 from math import exp
-def test_script(script,df,name="My strat",days=None,output_graphs="",parameters=""):
-    if not days:
-        days=df.shape[0]
-    else:
-        days=min(int(days),df.shape[0])
+def test_script(script,ticker,loadedQuotes,name="My strat",days=None,output_graphs="",parameters=""):
+    
     # NOTE: some escape characters have not been replaced.
     # If youre seeing 'unexpected character' errors, add to the code below.
     if len(parameters)>0: parameters=","+parameters
-    script="import backtester\n"+script.replace('\\n','\n')+"\nres=backtester.test_single(main,df,name,days,"+output_graphs+parameters+")"
-    print(script)
-    script=script.replace("\\'","'").replace('\\"','"')
-    _vars={'res':None,'df':df,'days':days,'name':name}
-    exec(script,_vars)
+    script="import backtester\nimport data_handler\n"+script.replace('\\n','\n')+f"""
+df=None
+def load_quotes(ticker):
+    global df
+    if ticker in loadedQuotes:
+        df=loadedQuotes[ticker]
+    else:
+        df=data_handler.download_quotes(ticker)
+        loadedQuotes[ticker]=df
+    return df
+
+days=min({days},init("{ticker}"))
+res=backtester.test_single(main,df,"{name}",days,{output_graphs}) #{parameters}
     
+    """
+    #print(script)
+    script=script.replace("\\'","'").replace('\\"','"')
+    _vars={'res':None,'loadedQuotes':loadedQuotes,'days':days,'name':name}
+    exec(script,_vars)
     return _vars['res'],'Test'
 
 def test_single(strat,df,name,days=None,output_graphs=['equity','returns']):

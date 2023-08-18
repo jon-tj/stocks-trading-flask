@@ -64,13 +64,10 @@ def flow_flags_in_script(script):
 
 @app.route("/api/python", methods=['POST'])
 def API_python():
-
     ticker=memory['ticker']
-    print(ticker)
     if not ticker:
         ticker='EQNR.OL'
         loadedQuotes[ticker]=data_handler.load_quotes(ticker)
-    df=loadedQuotes[ticker]
     r=request.get_json()
     parameters=r['parameters']
     parametersText= ','.join([parameters[p] for p in parameters])
@@ -87,8 +84,13 @@ def API_python():
         output_graphs=[]
         if '@--equity' in script: output_graphs.append('equity')
         if '@--returns' in script: output_graphs.append('returns')
-        res,legend=backtester.test_script(script,df,get_script_symbol(script,'name','Test'),get_script_symbol(script,"test-days",None),str(output_graphs))
+        res,legend=backtester.test_script(script,ticker,loadedQuotes,get_script_symbol(script,'name','Test'),get_script_symbol(script,"test-days",None),str(output_graphs))
     else:
+        if ticker in loadedQuotes:
+            df=loadedQuotes[ticker]
+        else:
+            df=data_handler.download_quotes(ticker)
+            loadedQuotes[ticker]=df
         res,legend=run_script(script,df,ticker,parametersText)
     return graph(res,legend,parameters,og_script)
 def graph(res,legend,parameters={},script=None):
@@ -173,11 +175,6 @@ def API_get_prefab(p):
         i+=1
     if not ticker:
         return json.dumps(prefabs[p]['code'])
-    if ticker in loadedQuotes:
-        df=loadedQuotes[ticker]
-    else:
-        df=data_handler.download_quotes(ticker)
-        loadedQuotes[ticker]=df
     script=prefabs[p]['code']
     script=flow_flags_in_script(script)
     for v in get_script_symbols(script,'define'):
@@ -188,15 +185,20 @@ def API_get_prefab(p):
         output_graphs=[]
         if '@--equity' in script: output_graphs.append('equity')
         if '@--returns' in script: output_graphs.append('returns')
-        res,legend=backtester.test_script(script,df,get_script_symbol(script,'name','Test'),get_script_symbol(script,"test-days",None),str(output_graphs))
+        res,legend=backtester.test_script(script,ticker,loadedQuotes,get_script_symbol(script,'name','Test'),get_script_symbol(script,"test-days",None),str(output_graphs))
         return graph(res,legend)
+    
+    if ticker in loadedQuotes:
+        df=loadedQuotes[ticker]
+    else:
+        df=data_handler.download_quotes(ticker)
+        loadedQuotes[ticker]=df
     res,legend=run_script(script,df,ticker,parameters)
     return graph(res,legend,parametersDict,prefabs[p]['code'])
 
 @app.route("/api/prefabs", methods=['POST'])
 def API_post_prefab():
     code=request.get_json()
-    print("receieved code: ",code)
     legend=get_script_symbol(code,'legend','unknown')
     if '(' in legend: legend=legend[:legend.find('(')]
     description=get_script_symbol(code,'description',None)
