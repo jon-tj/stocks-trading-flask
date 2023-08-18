@@ -69,9 +69,7 @@ def API_python():
         ticker='EQNR.OL'
         loadedQuotes[ticker]=data_handler.load_quotes(ticker)
     r=request.get_json()
-    parameters=r['parameters']
-    parametersText= ','.join([parameters[p] for p in parameters])
-    if not parameters: parameters={}
+
     script=r['script'].replace('%3d','=')
     og_script=script
     script=flow_flags_in_script(script)
@@ -80,6 +78,10 @@ def API_python():
         if len(sides)<2: continue
         script=script.replace(sides[0],sides[1])
 
+    parameters=r['parameters']
+    parametersText= ','.join([parameters[p] for p in parameters])
+    if not parameters:
+        parameters=find_parameters(script)
     if '@--' in script: #this is a backtest
         output_graphs=[]
         if '@--equity' in script: output_graphs.append('equity')
@@ -212,18 +214,7 @@ def API_post_prefab():
     }
     # find the parameters in def main, other than 'df':
     if(code.find('def main(')!=-1):
-        parameters={}
-        parametersText=code[code.find('def main(')+9:].strip()
-        parametersText=parametersText[:parametersText.find(')')].replace(' ','').split(',')
-        if len(parametersText)>0:
-            del parametersText[0]
-        for i in range(len(parametersText)):
-            if '=' in parametersText[i]:
-                s=parametersText[i].split('=')
-                parameters[s[0]]=s[1]
-            else:
-                parameters[parametersText[i]]=0
-
+        parameters=find_parameters(code)
         prefabs[legend]['parameters']=parameters
         prefabs[legend]['type']="strategy" if "@--" in code else "indicator"
     if description:
@@ -231,6 +222,19 @@ def API_post_prefab():
     with open('server/py-prefabs.json','w') as f:
         json.dump(prefabs,f)
     return make_response(API_list_prefabs(), 200)
+def find_parameters(code):
+    parameters={}
+    parametersText=code[code.find('def main(')+9:].strip()
+    parametersText=parametersText[:parametersText.find(')')].replace(' ','').split(',')
+    if len(parametersText)>0:
+        del parametersText[0]
+    for i in range(len(parametersText)):
+        if '=' in parametersText[i]:
+            s=parametersText[i].split('=')
+            parameters[s[0]]=s[1]
+        else:
+            parameters[parametersText[i]]=0
+    return parameters
 
 @app.route("/api/prefabs/<p>", methods=['DELETE'])
 def API_delete_prefab(p):

@@ -23,7 +23,7 @@ pycode.addEventListener("keydown", (e) => {
 });
 
 function runPython(script=null,justReturn=false,parameters="",onComplete=null){
-    pyPrint("Running Python Script")
+    if(!onComplete) pyPrint("In : run_python()")
     fetch("/api/python",{
         method: 'POST',
         body: JSON.stringify({script:script?script:pycode.value,parameters:parameters}),
@@ -36,8 +36,8 @@ function runPython(script=null,justReturn=false,parameters="",onComplete=null){
         d=JSON.parse(d.replaceAll('NaN','null'))
         var renderable=receiveGraphResponse(d,justReturn);
         render();
-        pyPrint(">"+d.legend)
         if(onComplete)onComplete(renderable);
+        else pyPrint("Out: "+d.legend)
     });
 }
 function findOrCreatePlot(target,sender=null){

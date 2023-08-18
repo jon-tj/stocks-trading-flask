@@ -3,6 +3,7 @@ testScript=`
 @--equity
 @--returns
 
+@name: Test
 @test-days: 2000
 @define:
 . BUY 1

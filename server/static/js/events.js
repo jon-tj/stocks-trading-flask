@@ -3,6 +3,7 @@
 document.addEventListener("keydown",(e)=>{
     if(Object.keys(keys).includes(e.key)) keys[e.key]=true
     if(document.activeElement === pycode) return;
+    if(document.activeElement === pyTerminal) return;
     if(document.activeElement === search.input){
         if(e.key=='Enter'){
             if(search.results.children.length==0) return;

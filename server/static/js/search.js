@@ -161,7 +161,6 @@ function loadScript(key='sma',parameters,justReturn=false,runAnyway=false){
             if(justReturn) return renderable;
             render();
             hidePrompt(false);
-            pyPrint(">"+d.legend)
         });
     }
 }
