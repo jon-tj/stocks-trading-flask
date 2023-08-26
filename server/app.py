@@ -207,6 +207,8 @@ def API_post_prefab():
     name=get_script_symbol(code,'name',legend)
     if name=='unknown':
         return make_response(json.dumps({'error':'Could not determine name'}), 400)
+    if legend=='unknown':
+        legend = name
     names=name.split('|')
     prefabs[legend]={
         'names':names,

@@ -59,6 +59,22 @@ class Graph{
             }
             else if (this.graphRenderMethod == "bricks"){
                 var y0=view.transformY(this.y[i]);
+                i=Math.max(1,i); // cus what color would it even be? makes no sense
+                for(;i<end; i++){
+                    yT.push(view.transformY(this.y[i]));
+                    if(this.y[i]>this.y[i-1])
+                        ctx.fillStyle=this.color
+                    else
+                        ctx.fillStyle=this.colorNegative
+                    if(this.display) ctx.fillRect(x,yT[yT.length-1],dx,y0-yT[yT.length-1]);
+                    y0=yT[yT.length-1];
+                    x+=dx;
+                }
+            }
+            // special rendering method for bricks that
+            // are not allowed to be next to each other:
+            else if (this.graphRenderMethod == "renga"){ 
+                var y0=view.transformY(this.y[i]);
                 var prevBottom=y0;
                 var prevTop=y0;
                 i=Math.max(1,i); // cus what color would it even be? makes no sense
@@ -75,7 +91,6 @@ class Graph{
                         y0=prevBottom;
                         prevTop=prevBottom;
                         prevBottom=yT[yT.length-1];
-                        //if(yT.length>2) y0=Math.max(y0,yT[yT.length-3])
                     }
                     if(this.display) ctx.fillRect(x,yT[yT.length-1],dx,y0-yT[yT.length-1]);
                     y0=yT[yT.length-1];

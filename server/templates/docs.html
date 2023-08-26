@@ -20,77 +20,103 @@
         <ul>
             <li>Scripting in python</li>
             <li>Testing</li>
-            <li>Using the API</li>
             <li>Trading live</li>
+            <li>Using the API</li>
         </ul>
     </aside>
     <aside id="content">
         <h1>Documentation</h1>
         <span>Flask Trader v1.0</span>
-        <section id="scripting">
+        <section id="scripting" class="topic">
             <h2>Scripting in python</h2>
-            <p>
-                Upon running a script, either from the search box or from the editor, the code is sent to the server and evaluated.
+            <section>
+                Upon running a script, either from the search box or from the editor, the code is sent to the server and evaluated.<br>
                 <em>Note: This can allow unsafe code to be executed, and further security measures need be taken for public use.</em>
-            </p>
-            <p>
+            </section>
+            <section>
                 If the evaluated code returns a recognized format, the server will return a Renderable representation,
                 that will be appended to the draw list in the subplot specified by the <code>target</code> field. Recognized formats are:
                 <ul class="colorme">
-                    <li>[series] &nbsp;- can be either pd.Series or a list</li>
-                    <li>{ 'values':[series], [render-options]:[value], 'target':[target] }</li>
-                    <li>[ {'values':[series], [render-options]:[value] }, ... {special objects} ]</li>
-                    <li>[ [series] ] &nbsp;- return a list of series with default render options</li>
+                    <li><code>[series]</code> &nbsp;- can be either pd.Series or a list</li>
+                    <li><code>{ 'values':[series], [render-options]:[value], 'target':[target] }</code></li>
+                    <li><code>[ {'values':[series], [render-options]:[value] }, ... {special objects} ]</code></li>
+                    <li><code>[ [series] ]</code> &nbsp;- return a list of series with default render options</li>
                 </ul>
                 At current, the only special object type supported is <code><span class="colorme">'fill_between'</span>:[objByLegend1, objByLegend2]</code>
-            </p>
-            <p>
+            </section>
+            <section>
                 The following are recognized render option flags:
                 <ul>
-                    <li><code>color</code></li>
-                    <li><code>lineWidth</code> (graph only)</li>
-                    <li><code>legend</code> - displays a legend in the corresponding subplot.</li>
+                    <li class="colorme"><code>'color'</code> - use web colors, for example: <code>'red'</code> or <code>'#ff0000'</code></li>
+                    <li><code class="colorme">'colorNegative'</code> - used by discrete renderers when current entry is lower than previous entry.</li>
+                    <li><code class="colorme">'lineWidth'</code> (line graph only)</li>
+                    <li><code class="colorme">'legend'</code> - displays a legend in the corresponding subplot.</li>
+                    <li><code class="colorme">'style'</code> - set to one of:<code class="colorme">['line','bar','bricks','renga']</code>. (default: line)</li>
                 </ul>
+                Note on <code class="colorme">'style':'renga'</code>: Renga bricks are not allowed to be printed next to each other, and extra care
+                needs to be taken when rendering them:
+                the brick position right after an upturn is expected to point to the TOP of the brick, as opposed to the bottom. If this is not implemented,
+                bricks may appear to "disappear", since they are rendered with zero height!
+                <br><br>
                 The following are recognized target values:
                 <ul>
-                    <li><span class="colorme">'main'</span> - first subplot created (default).</li>
-                    <li><span class="colorme">'0-100'</span> - creates new subplot with y-axis locked.</li>
-                    <li><span class="colorme">'0-1'</span> - creates new subplot with y-axis locked.</li>
-                    <li><span class="colorme">'active'</span> - last subplot user interacted with.</li>
-                    <li><span class="colorme">[value]</span> - other targets will create a new subplot with same viewport as main.</li>
+                    <li><code class="colorme">'main'</code> - first subplot created (default).</li>
+                    <li><code class="colorme">'0-100'</code> - creates new subplot with y-axis locked.</li>
+                    <li><code class="colorme">'0-1'</code> - creates new subplot with y-axis locked.</li>
+                    <li><code class="colorme">'active'</code> - last subplot user interacted with.</li>
+                    <li><code class="colorme">[value]</code> - other targets will create a new subplot with same viewport as main.</li>
                 </ul>
-                Tip: You can create multiple <span class="colorme">'0-100'</span> plots by using <span class="colorme">'0-100(1)'</span> etc.<br>
-                (NOT IMPLEMENTED) 
-                Tip: Prefixing the target with symbols such as <span class="colorme">'%returns'</span> will give that plot the defined prefix. Sufixing works similarly.
-            </p>
-            <p>
-                Scripts can be stored in <a href="api/prefabs">py-prefabs.json</a> with the upload button, or by POSTing to <a href="api/prefabs">api/prefabs</a>,
-                with a valid script passed in the body.
-            </p>
-            <p>
-                All scripts must have at least one parameter to accept the dataframe passed in upon execution.
-                The first parameter is a pandas dataframe containing the latest quotes gathered from the yfinance api.
+                Tip: You can create multiple <code class="colorme">'0-100'</code> plots by using <code class="colorme">'0-100(1)'</code> etc.<br>
+                
+                Tip: Suffixing the target with symbols such as <code class="colorme">'returns%'</code> will give that plot the defined suffix.
+            </section>
+            <section>
+                The <code>main(data, ...)</code> function must take at least one parameter.
                 Additional parameters are made available via the user interface, and can be optimized with the built-in parameter optimizer.
+                As with any model, it is recommended to keep the amount of parameters low to avoid overfitting.
                 <br><br>
                 <em>Note: The parameter optimizer is currently experimental, and may not work as expected.</em>
                 <br><br>
-                It is recommended to keep the amount of parameters low, to avoid overfitting.
-            </p>
+            </section>
+
+            <section>
+                
+                Scripts can be stored in <a href="api/prefabs">py-prefabs.json</a> with the upload button, or by POSTing to <a href="api/prefabs">api/prefabs</a>,
+                with a valid script passed in the body.<br>
+                To upload scripts, you should include at least one tag to identify the script:
+                <ul>
+                    <li><code class="colorme">@name: [name1 | name2...]</code> - Search display and query name. Can be pipe separated for multiple names.</li>
+                    <li><code class="colorme">@legend: [legend]</code> - Display text in plot. Use <code>$ticker</code> for an arbitrary ticker.</li>
+                </ul>
+            </section>
+            <section>
+                Other tags than the ones above exist. Starting the next line with a dot (<code>.</code>) will flow the previous tag
+                (useful for oft-used tags). <br>
+                Currently supported tags are:
+                <ul>
+                    <li><code class="colorme">@define: [a] [b] </code> - replaces all occurences of <em>a</em> with <em>b</em>. </li>
+                    <li><code class="colorme">@description: [text] </code> - display a short description of the script when browsing the help menu.</li>
+                </ul>
+            </section>
         </section>
-        <section id="testing">
+        <section id="testing" class="topic">
             <h2>Testing</h2>
-            <p>
-                The backtesting engine is simple and intuitive.
-            </p>
+            <section>
+                All test scripts import backtesting functions and data loading functions by default. Upon execution, the <code>init</code> function is called,
+                with the ticker set to the most recently imported ticker. The <code>main</code> function is then called for every time step specified by the 
+                <code class="colorme">@test-days: [int]</code> tag (default: length of dataset).
+                <br><br>
+                When the test is completed, it will return the results to the client.
+                Output can be suppressed by removing the corresponding <code class="colorme">@--</code> tags in the script.
+            </section>
         </section>
-        <section id="api">
-            <h2>Using the API</h2>
-            <p>
-                The backtesting engine is simple and intuitive.
-            </p>
-        </section>
-        <section id="live-trading">
+        <section id="live-trading" class="topic">
             <h2>Trading live</h2>
+            Not implemented
+        </section>
+        <section id="api" class="topic">
+            <h2>Using the API</h2>
+            Not implemented
         </section>
     </aside>
 </body>

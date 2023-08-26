@@ -24,7 +24,7 @@ def time_ser(ticker,name='stock-A'):
     data[name]=[c for c in df['Close']]
     return data[name]
 
-def reveal(ts,i):
+def reveal(ts,i): #not implemented :(
     return ts
 
 init("{ticker}")

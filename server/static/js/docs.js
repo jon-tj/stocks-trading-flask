@@ -1,6 +1,9 @@
 function prettyFormat(){
     var codes=document.querySelectorAll(".colorme");
     codes.forEach((sec)=>{
+        if(sec.innerHTML.startsWith("@")){
+            sec.innerHTML="<span style='color:green'>"+sec.innerHTML+"</span>";
+        }
         sec.innerHTML=sec.innerHTML
         .replaceAll("[series]", "$1")
         .replaceAll("[value]", "$2")
