@@ -14,18 +14,23 @@ class Graph{
         this.parameters={};
         for(var Y of y) this.meanY+=Y;
         this.meanY/=y.length;
-        var parentPlot=null;
+        this.parentPlot=null;
+        this.normalizeY=null;
     }
     render(view,start=-1,end=-1,x=-1,dx=-1){
-        var yT=[]
+        var yT=[];
+
         ctx.beginPath();
         ctx.strokeStyle=this.color;
         ctx.fillStyle=this.color;
         ctx.lineWidth=this.lineWidth;
+        var dy=0;
+        if(this.normalizeY!=null)
+            dy=this.normalizeY-yT[0];
         if(this.linearX){
             var i=start;
             if(i==-1){
-                var i=Math.max(0,this.y.length+Math.floor(view.left)-1);
+                var i=Math.max(0,this.y.length+Math.floor(view.left)-5);
                 end=Math.min(this.y.length,this.y.length+Math.ceil(view.right))
                 while(i<end && this.y[i]==null) i++; //skip
                 x=view.transformX(i-this.y.length);
@@ -33,11 +38,15 @@ class Graph{
             }
             yT.push(view.transformY(this.y[i]));
             if(this.graphRenderMethod == "line"){
-                ctx.moveTo(x,yT[yT.length-1]);
+                if(view.orientation=='yx')
+                ctx.moveTo(yT[yT.length-1],x);
+                else ctx.moveTo(x,yT[yT.length-1]);
                 for(;i<end; i++){
                     x+=dx;
                     yT.push(view.transformY(this.y[i]));
-                    ctx.lineTo(x,yT[yT.length-1]);
+                    if(view.orientation=='yx')
+                    ctx.lineTo(yT[yT.length-1],x);
+                    else ctx.lineTo(x,yT[yT.length-1]);
                 }
                 if(this.display) ctx.stroke();
             }else if(this.graphRenderMethod == "bar"){
@@ -45,6 +54,31 @@ class Graph{
                 for(;i<end; i++){
                     yT.push(view.transformY(this.y[i]));
                     if(this.display) ctx.fillRect(x,yT[yT.length-1],dx,y0-yT[yT.length-1]);
+                    x+=dx;
+                }
+            }
+            else if (this.graphRenderMethod == "bricks"){
+                var y0=view.transformY(this.y[i]);
+                var prevBottom=y0;
+                var prevTop=y0;
+                i=Math.max(1,i); // cus what color would it even be? makes no sense
+                for(;i<end; i++){
+                    yT.push(view.transformY(this.y[i]));
+                    if(this.y[i]>this.y[i-1]){
+                        ctx.fillStyle=this.color
+                        y0=prevTop;
+                        prevBottom=prevTop;
+                        prevTop=yT[yT.length-1];
+                    }
+                    else{
+                        ctx.fillStyle=this.colorNegative
+                        y0=prevBottom;
+                        prevTop=prevBottom;
+                        prevBottom=yT[yT.length-1];
+                        //if(yT.length>2) y0=Math.max(y0,yT[yT.length-3])
+                    }
+                    if(this.display) ctx.fillRect(x,yT[yT.length-1],dx,y0-yT[yT.length-1]);
+                    y0=yT[yT.length-1];
                     x+=dx;
                 }
             }
@@ -66,7 +100,6 @@ class Graph{
                     break;
             }
             ctx.lineWidth=2;
-            ctx.strokeStyle='red';
             ctx.stroke();
             ctx.globalAlpha=0.5;
             ctx.fillStyle=this.color;
@@ -125,7 +158,8 @@ class GraphsCollection{
         this.transformedGraphs={};
         this.display=true;
         this.parameters={};
-        var parentPlot=null;
+        this.parentPlot=null;
+        this.normalizeY=null;
     }
     render(view){
         if(!this.display) return;
@@ -198,7 +232,8 @@ class CandleChart{
         this.color=color;
         this.n=Object.keys(this.data['Close']).length;
         this.display=true;
-        var parentPlot=null;
+        this.parentPlot=null;
+        this.normalizeY=null;
     }
     render(view){
         if(!this.display) return;
@@ -207,13 +242,14 @@ class CandleChart{
         const end=Math.min(this.n,this.n+Math.ceil(view.right))
         var x=view.transformX(i-this.n);
         var dx=1/view.dx;
+        var dy=0;
         for(;i<end; i++){
-            var high=view.transformY(this.data['High'][i]);
+            var high=view.transformY(this.data['High'][i])+dy;
             //if(high>canvas.height)continue; // not a big save since 99% of the candles are in view haha
-            var low=view.transformY(this.data['Low'][i]);
+            var low=view.transformY(this.data['Low'][i])+dy;
             //if(low<0)continue;
-            var open=view.transformY(this.data['Open'][i]);
-            var close=view.transformY(this.data['Close'][i]);
+            var open=view.transformY(this.data['Open'][i])+dy;
+            var close=view.transformY(this.data['Close'][i])+dy;
             ctx.fillRect(x,open,dx,close-open);
             ctx.fillRect(x+dx/2,high,1,low-high);
             if(this.data['Close'][i]<this.data['Open'][i]){

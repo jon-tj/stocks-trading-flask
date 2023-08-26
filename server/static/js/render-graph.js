@@ -66,7 +66,7 @@ class SubPlot{
             var hover=false;
             if(r.name){
                 var legendText=r.name;
-                if(rectContains({x:this.view.dest.x+10,y:legendY-16,width:200,height:20},mouse.position)){
+                if(rectContains({x:this.view.dest.x,y:legendY-16,width:260,height:20},mouse.position)){
                     hover=true;
                     legendText=cutoffResultText(legendText,13);
                     ctx.fillStyle=r.color;
@@ -74,19 +74,34 @@ class SubPlot{
                     ctx.fillRect(this.view.dest.x,legendY-18,200,24);
                     for(let i=0; i<10; i++){
                         ctx.globalAlpha-=0.019;
-                        ctx.fillRect(this.view.dest.x+200+i*5,legendY-18,5,24);
+                        ctx.fillRect(this.view.dest.x+200+i*6,legendY-18,6,24);
                     }
                     ctx.globalAlpha=1;
                     if(imgsLoaded){
+
                         ctx.drawImage(images.settings,this.view.dest.x+165,legendY-16,20,20)
-                        ctx.drawImage(images.trash,this.view.dest.x+190,legendY-16,20,20)
+                        if(rectContains({x:this.view.dest.x+165,y:legendY-16,width:20,height:20},mouse.position))
+                            mouse.clickEvent=()=>{settingsPrompt(r);}
+
+                        ctx.drawImage(images.python,this.view.dest.x+190,legendY-16,20,20)
                         if(rectContains({x:this.view.dest.x+190,y:legendY-16,width:20,height:20},mouse.position))
+                            mouse.clickEvent=()=>{togglePythonIndicator()}
+                            
+                        ctx.drawImage(images.trash,this.view.dest.x+215,legendY-16,20,20)
+                        if(rectContains({x:this.view.dest.x+215,y:legendY-16,width:20,height:20},mouse.position))
                             mouse.clickEvent=()=>{
                                 this.renderables.splice(this.renderables.indexOf(r),1);
                                 render();
                             }
-                        if(rectContains({x:this.view.dest.x+165,y:legendY-16,width:20,height:20},mouse.position))
-                            mouse.clickEvent=()=>{settingsPrompt(r);}
+                        if(r instanceof Graph){
+                            ctx.drawImage(images.normalize,this.view.dest.x+240,legendY-16,20,20)
+                            if(rectContains({x:this.view.dest.x+240,y:legendY-16,width:20,height:20},mouse.position))
+                                mouse.clickEvent=()=>{
+                                    if(r.normalizeY==null) r.normalizeY=this.view.dest.height*3/5;
+                                    else r.normalizeY=null;
+                                    render();
+                                }
+                        }
                     }
                 }
                 ctx.font="bold 12pt Arial";
@@ -190,6 +205,8 @@ function loadImage(url){
 const images={
     trash:loadImage("static/icons/python/delete.png"),
     settings:loadImage("static/icons/graph/settings.png"),
+    python:loadImage("static/icons/python/python.png"),
+    normalize:loadImage("static/icons/graph/normalize.png"),
 }
 //#endregion
 function findPlot(name="main"){

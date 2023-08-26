@@ -8,10 +8,10 @@ testScript=`
 @define:
 . BUY 1
 . SELL -1
-. close df['Close']
+. close data['stock-A']['Close']
 """ 
 
-def main(df,i):
+def main(data,i):
     if i<1: return SELL
     if close[i]<close[i-1]:
         return BUY
@@ -19,7 +19,6 @@ def main(df,i):
         return SELL
 
 def init(ticker):
-    df=load_quotes(ticker)
-    return len(df)
+    load_quotes(ticker,'stock-A')
 
 `;

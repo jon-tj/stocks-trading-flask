@@ -136,6 +136,7 @@ function settingsPrompt(r){
             <select id="graphRenderMethod" name="graphRenderMethod" onchange="updateSettings(this)" value="bar">
                 <option value="line" ${settingsRenderable.graphRenderMethod=='line'?'selected':''}>Line</option>
                 <option value="bar" ${settingsRenderable.graphRenderMethod=='bar'?'selected':''}>Bar</option>
+                <option value="bricks" ${settingsRenderable.graphRenderMethod=='bricks'?'selected':''}>Bricks</option>
             </select>
         </td></tr>
         <tr><td>

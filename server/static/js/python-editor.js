@@ -8,8 +8,8 @@ pycode.value=indicatorScript=`"""
  @name: Simple Moving Average|SMA
  @description: Mean of rolling window
 """
-def main(df):
-    return df['Close'].rolling(window=5).mean()`;
+def main(df,period=5):
+    return df['Close'].rolling(window=period).mean()`;
 pycode.addEventListener("keydown", (e) => {
     if(e.key=="Tab"){
         const cursorPosition = pycode.selectionStart; // Get cursor position
@@ -39,6 +39,20 @@ function runPython(script=null,justReturn=false,parameters="",onComplete=null){
         if(onComplete)onComplete(renderable);
         else pyPrint("Out: "+d.legend)
     });
+}
+function togglePythonIndicator(){
+    if(pythonEditor.style.display!="block"){
+        pythonEditor.style.display="block";
+        search.input.focus();
+        mouse.click.button=-1;
+        canvas.style.left=pythonEditor.clientWidth+"px";
+        canvas.width=window.innerWidth-pythonEditor.clientWidth;
+        recalcViewDest();
+        render();
+    }
+    else{
+        runPython(pycode.value);
+    }
 }
 function findOrCreatePlot(target,sender=null){
     var plt=findPlot(target);
@@ -101,6 +115,8 @@ function receiveGraphResponse(d,justReturn=false){
             d.graphs[0].lineWidth?d.graphs[0].lineWidth:1);
         g.parameters=d.parameters;
         g.script=d.script;
+        if(d.graphs[0].style) g.graphRenderMethod=d.graphs[0].style;
+        if(d.graphs[0].colorNegative) g.colorNegative=d.graphs[0].colorNegative;
         if(justReturn) return g;
         activePlot.push(g);
     }
@@ -120,12 +136,14 @@ function receiveGraphResponse(d,justReturn=false){
             gc.parameters=d.parameters;
             for(var i=0;i<d.graphs.length;i++){
                 if(d.graphs[i].values){
-                    gc.push(Graph.createLinear(
+                    var ro=Graph.createLinear(
                         d.graphs[i].legend?d.graphs[i].legend:'',
                         d.graphs[i].values,
                         d.graphs[i].color?d.graphs[i].color:graphColors[i%graphColors.length],
                         d.graphs[i].lineWidth?d.graphs[i].lineWidth:1,
-                        d.graphs[i].distribution?d.graphs[i].distribution:null));
+                        d.graphs[i].distribution?d.graphs[i].distribution:null);
+                    gc.push(ro);
+                    if(gc.style) ro.graphRenderMethod=gc.style;
                 }else{
                     if(d.graphs[i].fill_between)
                         gc.pushRegion(d.graphs[i].fill_between)
@@ -154,11 +172,13 @@ function receiveGraphResponse(d,justReturn=false){
                 var plt=findOrCreatePlot(g_target);
                 if(g.values){
                     prevVals=g.values;
-                    plt.renderables.push(Graph.createLinear(
+                    var ro=Graph.createLinear(
                         g.legend,g.values,
                         g.color?g.color:graphColors[plt.renderables.length%graphColors.length],
                         g.lineWidth?g.lineWidth:1,
-                        g.distribution?g.distribution:null));
+                        g.distribution?g.distribution:null);
+                    plt.renderables.push(ro);
+                    if(g.style) ro.graphRenderMethod=g.style;
                     if(!plt.lockAxisY) plt.view.fitDataVertical(g.values)
                 }else{
                     Object.keys(g).forEach((k)=>{

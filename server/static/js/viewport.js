@@ -84,7 +84,6 @@ class Viewport{
         if(obj.length==0) return;
         var bounds=[]
         obj.forEach((o)=>bounds.push(this.fitDataVertical(o.toLinear(),true)));
-        console.log(bounds);
         var max=bounds[0].max;
         bounds.forEach((o)=>max=Math.max(max,o.max))
         var min=bounds[0].min;
