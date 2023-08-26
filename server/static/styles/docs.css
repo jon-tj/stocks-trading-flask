@@ -27,6 +27,12 @@ section.topic{
     margin-bottom: 4em;
     border:none;
 }
+section.logo{
+    border: none;
+}
+img.logo{
+    width:3em;
+}
 a{
     color: var(--navbar-primary);
 }
