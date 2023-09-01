@@ -14,6 +14,9 @@
     color:var(--navbar-primary);
     display: none;
 }
+h2.prompt{
+    margin-top: -0.5em;
+}
 .centered-buttons{
 margin: auto;
 width: fit-content;

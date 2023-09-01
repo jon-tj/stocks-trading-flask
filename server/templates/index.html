@@ -26,9 +26,10 @@
             <img class="icon" onclick="setMaxTimeScale(this)" src="../static/icons/graph/timeMax.png" title="Set max time-scale" alt="time max">
             <img class="icon" onclick="toggleFullscreen(this)" src="../static/icons/graph/fullscreen.png" title="Toggle fullscreen" alt="fullscreen">
             <img class="icon" onclick="toggleCursorLines(this)" src="../static/icons/graph/cursorLines.png" title="Cursor lines" alt="cursor lines">
+
         </section>
         <section class="inline bordered">
-            <span class="icon notimplemented">Setup live</span>
+            <img class="icon" onclick="toggleNordnet(this)" src="../static/icons/markets/nordnet.jpg" title="Connect to Nordnet" alt="nordnet">
         </section>
     </section>
     <section id="python-editor">
@@ -63,8 +64,14 @@
             <ul id="help-list"></ul>
         </section>
         <section name="settings">
-            <h2>Settings for <span id="prompt-settings-item">your dad</span></h2>
+            <h2 class="prompt">Settings for <span id="prompt-settings-item">your dad</span></h2>
             <table id="prompt-settings-table"></table>
+        </section>
+        <section name="nordnet">
+            <h2 class="prompt">Nordnet</h2>
+            <p>Accounts
+                <ul id="accounts-list"></ul>
+            </p>
         </section>
     </section>
     <section id="overlay-black"></section>
@@ -80,4 +87,5 @@
 <script src="../static/js/render-graph.js"></script>
 <script src="../static/js/search.js"></script>
 <script src="../static/js/events.js"></script>
+<script src="../static/js/nordnet.js"></script>
 </html>

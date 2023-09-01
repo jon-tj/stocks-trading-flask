@@ -5,11 +5,24 @@ import data_handler
 import pandas as pd
 import backtester
 import re
+from nordnet_client import Nordnet
+import os
+
+# http://localhost:5000/
+# http://localhost:5000/docs
 
 loadedQuotes={}
-memory={'ticker':None}
+memory={'ticker':None,'broker':None}
 with open('./server/py-prefabs.json','r') as f:
     prefabs=json.load(f)
+
+# Nordnet login credentials can be stored offline instead of entering them manually every time you refresh website
+credentials=None
+path_to_credentials=os.path.expanduser("~/Documents/.auth") # change to wherever you want
+if os.path.exists(path_to_credentials):
+    with open(path_to_credentials,"r") as f:
+        raw = f.readlines()
+        credentials={'username': raw[0][:-1], 'password': raw[1]}
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
@@ -247,10 +260,38 @@ def API_delete_prefab(p):
         json.dump(prefabs,f)
     return make_response(API_list_prefabs(), 200)
 
+#endregion
+
+#region nordnet API endpoints
+
+@app.route("/api/nn/auth", methods=['POST'])
+def API_nn_auth():
+    creds=request.get_json()
+    if not "username" in creds and credentials:
+        creds["username"]=credentials["username"]
+    if not "password" in creds and credentials:
+        creds["password"]=credentials["password"]
+    if not 'username' in creds or not 'password' in creds:
+        return make_response(json.dumps({'error':'Credentials not found. Expected: {"username":username,"password":password}'}),400)
+    print(creds)
+    if memory['broker']==None:
+        broker=Nordnet.connect(creds['username'],creds['password'])
+        if broker.logged_in:
+            memory['broker']=broker
+            return make_response(json.dumps({'message':"Successfully connected to broker",'code':broker.code}))
+        return make_response(json.dumps({'error':"Failed to connect! Response: "+str(broker.code),'code':broker.code}))
+
+    return make_response(json.dumps({'error':"Something went wrong :/ Try again later.",'code':404}),404)
+
+def API_nn_positions():
+    if not memory['broker']: return make_response(json.dumps({'error':'Not connected to broker'}),404)
+    return json.dumps(memory['broker'].get_positions())
+#endregion
+
+#region debugging tools
 @app.route("/api/peek", methods=['GET'])
 def API_peek_memory():
     return json.dumps(memory)
 #endregion
-
 if __name__ == "__main__":
     app.run(debug=True)

@@ -114,6 +114,7 @@ function helpPrompt(){
 welcomePrompt();
 var settingsRenderable=null;
 function settingsPrompt(r){
+    promptBox.style.height="300px";
     settingsRenderable=r;
     promptSettingsItem.innerText=r.name;
     promptSettingsTable.innerHTML=`

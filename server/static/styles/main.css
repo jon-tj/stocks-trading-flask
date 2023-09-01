@@ -111,7 +111,11 @@ span.icon{
     border-left: 1px solid var(--navbar-secondary);
     position: relative;
     top:-0.3em;
-    padding: 0.2em;
+    padding: 0.3em;
+}
+.bordered>*{
+position: relative;
+top:0.6em;
 }
 .link{
     border-bottom: 1px solid var(--navbar-secondary);

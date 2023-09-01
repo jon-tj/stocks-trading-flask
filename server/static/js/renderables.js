@@ -16,6 +16,7 @@ class Graph{
         this.meanY/=y.length;
         this.parentPlot=null;
         this.normalizeY=null;
+        this.displaceX=0;
     }
     render(view,start=-1,end=-1,x=-1,dx=-1){
         var yT=[];
@@ -30,23 +31,21 @@ class Graph{
         if(this.linearX){
             var i=start;
             if(i==-1){
-                var i=Math.max(0,this.y.length+Math.floor(view.left)-5);
-                end=Math.min(this.y.length,this.y.length+Math.ceil(view.right))
+                var i=Math.max(0,this.y.length+Math.floor(view.left-this.displaceX)-5);
+                end=Math.min(this.y.length,this.y.length+Math.ceil(view.right-this.displaceX))
                 while(i<end && this.y[i]==null) i++; //skip
-                x=view.transformX(i-this.y.length);
+                x=view.transformX(i-this.y.length+this.displaceX);
                 dx=1/view.dx;
             }
             yT.push(view.transformY(this.y[i]));
+            i++;
+            x+=dx;
             if(this.graphRenderMethod == "line"){
-                if(view.orientation=='yx')
-                ctx.moveTo(yT[yT.length-1],x);
-                else ctx.moveTo(x,yT[yT.length-1]);
+                ctx.moveTo(x,yT[0]);
                 for(;i<end; i++){
                     x+=dx;
                     yT.push(view.transformY(this.y[i]));
-                    if(view.orientation=='yx')
-                    ctx.lineTo(yT[yT.length-1],x);
-                    else ctx.lineTo(x,yT[yT.length-1]);
+                    ctx.lineTo(x,yT[yT.length-1]);
                 }
                 if(this.display) ctx.stroke();
             }else if(this.graphRenderMethod == "bar"){

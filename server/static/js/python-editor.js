@@ -116,6 +116,7 @@ function receiveGraphResponse(d,justReturn=false){
         g.parameters=d.parameters;
         g.script=d.script;
         if(d.graphs[0].style) g.graphRenderMethod=d.graphs[0].style;
+        if(d.graphs[0].displaceX) g.displaceX=d.graphs[0].displaceX;
         if(d.graphs[0].colorNegative) g.colorNegative=d.graphs[0].colorNegative;
         if(justReturn) return g;
         activePlot.push(g);

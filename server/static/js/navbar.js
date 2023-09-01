@@ -38,6 +38,42 @@ function togglePython(sender){
     recalcViewDest();
     render();
 }
+const broker={
+    isConnected:false
+}
+function toggleNordnet(sender){
+    promptBox.style.height="700px"
+    prompt(null,"nordnet")
+    var username="some-user"
+    var password="abc123"
+    if(!broker.isConnected){
+        fetch("/api/nn/auth",
+        {
+            method: 'POST',
+            body: JSON.stringify({}),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response=> response.json())
+        .then(r=>{
+            if(r.error){
+                die(r.error);
+                return;
+            }
+            broker.isConnected=true;
+            var accList=document.querySelector('#accounts-list');
+            accList.innerHTML="";
+            var positions=nordnet.positions()
+            console.log("received: "+positions)
+            positions.forEach((p)=>{
+                var li=document.createElement('li');
+                accList.append(li);
+                li.innerHTML=p;
+            })
+        });
+    }
+}
 function toggleVerticalFit(sender){
     toggleSenderActive(sender);
     activePlot=findPlot("main");
