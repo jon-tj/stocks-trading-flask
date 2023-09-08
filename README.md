@@ -18,5 +18,5 @@ Deleting files with a DEL call will permanently remove these from the database. 
 
 If you get lost, or simply wish to view the scripts maintained in the database, write /help in the search field to see non-ticker searchable objects. Happy scripting :)
 
-![Screenshot 2023-09-08 180301.png]
-![Screenshot 2023-09-08 180615.png]
+![A lot of possibilities](Screenshot 2023-09-08 180615.png)
+![Help and Scripting pane shown](Screenshot 2023-09-08 180301.png)
