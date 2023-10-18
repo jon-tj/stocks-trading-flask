@@ -195,7 +195,7 @@ class GraphsCollection{
         for(let region of this.regions){
             var a=this.transformedGraphs[region[0]];
             var b=this.transformedGraphs[region[1]];
-            var x=x0;
+            var x=x0+dx;
             var rememberB=[];
             var previousEntryAbove=a[0]>b[0];
             ctx.beginPath();
